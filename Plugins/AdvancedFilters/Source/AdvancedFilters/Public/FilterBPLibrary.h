@@ -507,6 +507,16 @@ public:
         float RawValue,
         FFilterPerformanceData& OutPerformance);
 
+    /**
+     * Get filter instance by ID
+     * ID로 필터 인스턴스 가져오기
+     */
+    UFUNCTION(BlueprintPure, Category = "Advanced Filters|Utility",
+        meta = (DisplayName = "Get Filter Instance",
+            Keywords = "get filter instance object id",
+            ToolTip = "Get a filter instance by its ID"))
+    static UBaseFilterObject* GetFilterInstance(const FString& FilterID);
+
 private:
     // Performance tracking
     static TMap<FString, FDateTime> ProfileStartTimes;

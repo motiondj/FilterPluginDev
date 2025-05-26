@@ -745,3 +745,21 @@ float UFilterBPLibrary::ProfileFilterUpdate(
 
     return Result;
 }
+
+UBaseFilterObject* UFilterBPLibrary::GetFilterInstance(const FString& FilterID)
+{
+    // Check both Kalman and OneEuro instances
+    FString KalmanID = FString::Printf(TEXT("Kalman_%s"), *FilterID);
+    FString OneEuroID = FString::Printf(TEXT("OneEuro_%s"), *FilterID);
+
+    if (FFilterInstanceManager::FilterInstances.Contains(KalmanID))
+    {
+        return FFilterInstanceManager::FilterInstances[KalmanID];
+    }
+    else if (FFilterInstanceManager::FilterInstances.Contains(OneEuroID))
+    {
+        return FFilterInstanceManager::FilterInstances[OneEuroID];
+    }
+
+    return nullptr;
+}
