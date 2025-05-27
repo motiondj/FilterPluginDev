@@ -1,0 +1,10 @@
+{
+	"OutputFiles": [
+		"..\\..\\..\\x64\\UnrealGame\\Development\\AdvancedFilters\\Module.AdvancedFilters.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\AdvancedFilters\\AdvancedFilters.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\AdvancedFilters\\BaseFilter.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\AdvancedFilters\\FilterBPLibrary.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\AdvancedFilters\\KalmanFilter.cpp.obj",
+		"..\\..\\..\\x64\\UnrealGame\\Development\\AdvancedFilters\\OneEuroFilter.cpp.obj"
+	]
+}

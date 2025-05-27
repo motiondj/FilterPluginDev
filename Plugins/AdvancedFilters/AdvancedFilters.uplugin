@@ -1,9 +1,9 @@
 {
 	"FileVersion": 3,
 	"Version": 1,
-	"VersionName": "1.0",
-	"FriendlyName": "AdvancedFilters",
-	"Description": "Advanced filtering tools including Kalman and One Euro filters",
+	"VersionName": "1.0.0",
+	"FriendlyName": "Advanced Filters",
+	"Description": "Kalman and One Euro filters for Unreal Engine",
 	"Category": "Blueprint Utility",
 	"CreatedBy": "motiondj",
 	"CreatedByURL": "",
@@ -11,7 +11,7 @@
 	"MarketplaceURL": "",
 	"SupportURL": "",
 	"CanContainContent": true,
-	"IsBetaVersion": true,
+	"IsBetaVersion": false,
 	"IsExperimentalVersion": false,
 	"Installed": false,
 	"Modules": [
