@@ -2,7 +2,13 @@
 
 #include "CoreMinimal.h"
 #include "BaseFilter.h"
+#include "Math/UnrealMathUtility.h"  // PI 상수를 위해 추가
 #include "OneEuroFilter.generated.h"
+
+// PI 상수 정의 (언리얼 엔진에서는 UE_PI 사용)
+#ifndef PI
+#define PI UE_PI
+#endif
 
 /**
  * One Euro Filter implementation for low-latency filtering
