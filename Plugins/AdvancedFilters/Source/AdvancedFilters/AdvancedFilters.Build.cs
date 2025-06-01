@@ -1,4 +1,4 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
+ï»¿// Copyright Epic Games, Inc. All Rights Reserved.
 
 using UnrealBuildTool;
 
@@ -8,7 +8,7 @@ public class AdvancedFilters : ModuleRules
     {
         PCHUsage = ModuleRules.PCHUsageMode.UseExplicitOrSharedPCHs;
 
-        // Public dependencies - ºí·çÇÁ¸°Æ® ¶óÀÌºê·¯¸®¿¡ ÇÊ¿äÇÑ ±âº» ¸ğµâµé
+        // Public dependencies - ë¸”ë£¨í”„ë¦°íŠ¸ ë¼ì´ë¸ŒëŸ¬ë¦¬ì— í•„ìš”í•œ ê¸°ë³¸ ëª¨ë“ˆë“¤
         PublicDependencyModuleNames.AddRange(
             new string[]
             {
@@ -18,11 +18,11 @@ public class AdvancedFilters : ModuleRules
             }
         );
 
-        // Private dependencies - ÇÃ·¯±×ÀÎ ³»ºÎ¿¡¼­¸¸ »ç¿ëÇÏ´Â ¸ğµâµé
+        // Private dependencies - í”ŒëŸ¬ê·¸ì¸ ë‚´ë¶€ì—ì„œë§Œ ì‚¬ìš©í•˜ëŠ” ëª¨ë“ˆë“¤
         PrivateDependencyModuleNames.AddRange(
             new string[]
             {
-                // ±âº» ¿£Áø ±â´É
+                // ê¸°ë³¸ ì—”ì§„ ê¸°ëŠ¥
                 "Projects",
                 "InputCore",
                 "RenderCore",
@@ -30,7 +30,7 @@ public class AdvancedFilters : ModuleRules
             }
         );
 
-        // ¿¡µğÅÍ Àü¿ë ±â´Éµé (¿¡µğÅÍ¿¡¼­¸¸ ·Îµå)
+        // ì—ë””í„° ì „ìš© ê¸°ëŠ¥ë“¤ (ì—ë””í„°ì—ì„œë§Œ ë¡œë“œ)
         if (Target.bBuildEditor)
         {
             PrivateDependencyModuleNames.AddRange(
@@ -48,10 +48,10 @@ public class AdvancedFilters : ModuleRules
             );
         }
 
-        // ¾ğ¸®¾ó ¿£Áø 5.5 È£È¯¼ºÀ» À§ÇÑ Ãß°¡ ¼³Á¤
+        // ì–¸ë¦¬ì–¼ ì—”ì§„ 5.5 í˜¸í™˜ì„±ì„ ìœ„í•œ ì¶”ê°€ ì„¤ì •
         if (Target.Version.MajorVersion >= 5)
         {
-            // 5.5¿¡¼­ »ç¿ë °¡´ÉÇÑ ¸ğµâµé¸¸ Ãß°¡
+            // 5.5ì—ì„œ ì‚¬ìš© ê°€ëŠ¥í•œ ëª¨ë“ˆë“¤ë§Œ ì¶”ê°€
             PrivateDependencyModuleNames.AddRange(
                 new string[]
                 {
@@ -60,16 +60,16 @@ public class AdvancedFilters : ModuleRules
             );
         }
 
-        // ÃÖÀûÈ­ ¼³Á¤ - ·±Å¸ÀÓ ÇÃ·¯±×ÀÎ¿¡ ÀûÇÕÇÏ°Ô ¼öÁ¤
+        // ìµœì í™” ì„¤ì • - ëŸ°íƒ€ì„ í”ŒëŸ¬ê·¸ì¸ì— ì í•©í•˜ê²Œ ìˆ˜ì •
         OptimizeCode = CodeOptimization.InShippingBuildsOnly;
 
-        // ºôµå ¼³Á¤
+        // ë¹Œë“œ ì„¤ì •
         bUseUnity = true;
 
-        // C++ Ç¥ÁØ ¹öÀü (¾ğ¸®¾ó 5.5 È£È¯)
+        // C++ í‘œì¤€ ë²„ì „ (ì–¸ë¦¬ì–¼ 5.5 í˜¸í™˜)
         CppStandard = CppStandardVersion.Cpp17;
 
-        // Ãß°¡ ÄÄÆÄÀÏ·¯ Á¤ÀÇ
+        // ì¶”ê°€ ì»´íŒŒì¼ëŸ¬ ì •ì˜
         PublicDefinitions.Add("WITH_ADVANCED_FILTERS=1");
     }
 }
