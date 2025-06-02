@@ -392,11 +392,25 @@ public:
      */
     UFUNCTION(BlueprintCallable, Category = "Advanced Filters|Chain",
         meta = (DisplayName = "Create Filter Chain",
-            Keywords = "create chain multiple filters combine",
-            ToolTip = "Create a chain of filters that process values sequentially"))
+            Keywords = "create chain multiple filters combine blend weights",
+            ToolTip = "Create a chain of filters with blend weights for combining outputs"))
     static TArray<FFilterChainNode> CreateFilterChain(
         const TArray<EFilterType>& FilterTypes,
         const TArray<EFilterPreset>& Presets);
+
+    /**
+     * Create a filter chain with custom blend weights
+     * 커스텀 블렌드 가중치로 필터 체인 생성
+     */
+    UFUNCTION(BlueprintCallable, Category = "Advanced Filters|Chain",
+        meta = (DisplayName = "Create Filter Chain With Weights",
+            Keywords = "create chain multiple filters combine blend weights custom",
+            ToolTip = "Create a filter chain with custom blend weights for combining outputs"))
+    static TArray<FFilterChainNode> CreateFilterChainWithWeights(
+        const TArray<EFilterType>& FilterTypes,
+        const TArray<EFilterPreset>& Presets,
+        UPARAM(meta = (DisplayName = "Blend Weights"))
+        const TArray<float>& BlendWeights);
 
     /**
      * Process value through filter chain
@@ -436,9 +450,12 @@ public:
     static FCustomFilterPreset CreateCustomPreset(
         const FString& PresetName,
         EFilterType FilterType,
-        float Param1,
-        float Param2,
-        float Param3 = 1.0f);
+        UPARAM(meta = (DisplayName = "Process Noise (Kalman) / Min Cutoff (OneEuro)"))
+        float ProcessNoiseOrMinCutoff,
+        UPARAM(meta = (DisplayName = "Measurement Noise (Kalman) / Beta (OneEuro)"))
+        float MeasurementNoiseOrBeta,
+        UPARAM(meta = (DisplayName = "DCutoff (OneEuro Only)"))
+        float DCutoff = 1.0f);
 
     /**
      * Apply custom preset to filter

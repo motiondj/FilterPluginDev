@@ -527,6 +527,68 @@ TArray<FFilterChainNode> UFilterBPLibrary::CreateFilterChain(
     return Chain;
 }
 
+TArray<FFilterChainNode> UFilterBPLibrary::CreateFilterChainWithWeights(
+    const TArray<EFilterType>& FilterTypes,
+    const TArray<EFilterPreset>& Presets,
+    const TArray<float>& BlendWeights)
+{
+    TArray<FFilterChainNode> Chain;
+
+    int32 Count = FMath::Min(FilterTypes.Num(), Presets.Num());
+
+    // 가중치 정규화 계산
+    TArray<float> NormalizedWeights;
+    if (BlendWeights.Num() >= Count && Count > 0)
+    {
+        // 사용자 제공 가중치 사용
+        float TotalWeight = 0.0f;
+        for (int32 i = 0; i < Count; i++)
+        {
+            TotalWeight += BlendWeights[i];
+        }
+
+        // 정규화 (총합이 1.0이 되도록)
+        for (int32 i = 0; i < Count; i++)
+        {
+            float NormalizedWeight = (TotalWeight > 0.0f) ? (BlendWeights[i] / TotalWeight) : (1.0f / Count);
+            NormalizedWeights.Add(NormalizedWeight);
+        }
+
+        UE_LOG(LogTemp, Log, TEXT("Using custom blend weights, total: %f"), TotalWeight);
+    }
+    else
+    {
+        // 기본 균등 가중치 사용
+        for (int32 i = 0; i < Count; i++)
+        {
+            NormalizedWeights.Add(1.0f / Count);
+        }
+
+        UE_LOG(LogTemp, Log, TEXT("Using default equal weights"));
+    }
+
+    // 필터 체인 생성
+    for (int32 i = 0; i < Count; i++)
+    {
+        UBaseFilterObject* NewFilter = CreateFilter(FilterTypes[i]);
+        if (NewFilter)
+        {
+            InitializeFilter(NewFilter, Presets[i]);
+
+            FFilterChainNode Node;
+            Node.Filter = NewFilter;
+            Node.Weight = NormalizedWeights[i];
+            Chain.Add(Node);
+
+            UE_LOG(LogTemp, Log, TEXT("Filter %d: Type=%d, Preset=%d, Weight=%f"),
+                i, (int32)FilterTypes[i], (int32)Presets[i], NormalizedWeights[i]);
+        }
+    }
+
+    UE_LOG(LogTemp, Log, TEXT("Created filter chain with %d filters and custom weights"), Chain.Num());
+    return Chain;
+}
+
 float UFilterBPLibrary::ProcessThroughChain(
     const TArray<FFilterChainNode>& FilterChain,
     float RawValue)
@@ -585,9 +647,9 @@ float UFilterBPLibrary::BlendFilterOutputs(
 FCustomFilterPreset UFilterBPLibrary::CreateCustomPreset(
     const FString& PresetName,
     EFilterType FilterType,
-    float Param1,
-    float Param2,
-    float Param3)
+    float ProcessNoiseOrMinCutoff,    // 변경된 이름
+    float MeasurementNoiseOrBeta,     // 변경된 이름
+    float DCutoff)
 {
     FCustomFilterPreset Preset;
     Preset.PresetName = PresetName;
@@ -595,14 +657,14 @@ FCustomFilterPreset UFilterBPLibrary::CreateCustomPreset(
 
     if (FilterType == EFilterType::Kalman)
     {
-        Preset.ProcessNoise = Param1;
-        Preset.MeasurementNoise = Param2;
+        Preset.ProcessNoise = ProcessNoiseOrMinCutoff;      // 변경된 이름 사용
+        Preset.MeasurementNoise = MeasurementNoiseOrBeta;   // 변경된 이름 사용
     }
     else // OneEuro
     {
-        Preset.MinCutoff = Param1;
-        Preset.Beta = Param2;
-        Preset.DCutoff = Param3;
+        Preset.MinCutoff = ProcessNoiseOrMinCutoff;         // 변경된 이름 사용
+        Preset.Beta = MeasurementNoiseOrBeta;               // 변경된 이름 사용
+        Preset.DCutoff = DCutoff;
     }
 
     UE_LOG(LogTemp, Log, TEXT("Created custom preset: %s"), *PresetName);
