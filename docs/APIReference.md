@@ -1,4 +1,4 @@
-# API Reference
+# API Reference (Improved)
 
 *Read this in other languages: [English](APIReference.md), [한국어](APIReference_KR.md)*
 
@@ -9,18 +9,23 @@ Complete technical reference for all nodes and functions in Advanced Filters Plu
 - [← Back: User Manual](UserManual.md)
 - [→ Next: Blueprint Examples](Examples.md)
 
-### 📖 All Documentation
-- **Getting Started**
-  - [Quick Start Guide](QuickStart.md)
-  - [Installation Guide](Installation.md)
-- **User Guides**
-  - [User Manual](UserManual.md)
-  - [Blueprint Examples](Examples.md)
-  - [Best Practices](BestPractices.md)
-- **Technical Documentation**
-  - **API Reference** (You are here)
-  - [Performance Guide](Performance.md)
-  - [Troubleshooting](Troubleshooting.md)
+---
+
+## 🗂️ Node Category Guide
+
+When looking for nodes in Blueprint, check these categories:
+
+| Category | Included Nodes | Purpose |
+|----------|----------------|---------|
+| **Advanced Filters > Core** | Create Filter, Initialize Filter, Update Filter | Core functionality for 3-node system |
+| **Advanced Filters > One-Click** | Kalman/OneEuro Filter Value/Vector | One-click macros |
+| **Advanced Filters > Utility** | Reset, Get Current Value, Cleanup | Utility functions |
+| **Advanced Filters > Advanced** | Compare Outputs, Auto Tune | Advanced features |
+| **Advanced Filters > Chain** | Create Chain, Process Through Chain | Filter chaining |
+| **Advanced Filters > Custom Preset** | Create/Apply Custom Preset | Custom presets |
+| **Advanced Filters > Performance** | Start/Stop Profiling | Performance measurement |
+| **Advanced Filters > Debug** | Get Statistics, Response Curve | Debugging tools |
+| **Advanced Filters > Recommendation** | Recommend Filter Type | Filter recommendation |
 
 ---
 
@@ -38,6 +43,7 @@ Complete technical reference for all nodes and functions in Advanced Filters Plu
 ## 🔧 Core Nodes
 
 ### Create Filter
+**Category:** Advanced Filters > Core
 
 Creates a new filter instance of specified type.
 
@@ -62,6 +68,7 @@ Create Filter
 ---
 
 ### Initialize Filter
+**Category:** Advanced Filters > Core
 
 Initializes a filter with specified preset.
 
@@ -85,6 +92,7 @@ Initialize Filter
 ---
 
 ### Update Filter Float
+**Category:** Advanced Filters > Core
 
 Updates filter with new float value and returns filtered result.
 
@@ -104,6 +112,7 @@ Update Filter Float
 ---
 
 ### Update Filter Vector
+**Category:** Advanced Filters > Core
 
 Updates filter with new vector value and returns filtered result.
 
@@ -125,6 +134,7 @@ Update Filter Vector
 ## 🎯 One-Click Macros
 
 ### Kalman Filter Value
+**Category:** Advanced Filters > One-Click
 
 One-click Kalman filtering for float values.
 
@@ -146,6 +156,7 @@ Kalman Filter Value
 ---
 
 ### Kalman Filter Vector
+**Category:** Advanced Filters > One-Click
 
 One-click Kalman filtering for vector values.
 
@@ -162,6 +173,7 @@ Kalman Filter Vector
 ---
 
 ### One Euro Filter Value
+**Category:** Advanced Filters > One-Click
 
 One-click One Euro filtering for float values.
 
@@ -184,6 +196,7 @@ One Euro Filter Value
 ---
 
 ### One Euro Filter Vector
+**Category:** Advanced Filters > One-Click
 
 One-click One Euro filtering for vector values.
 
@@ -203,6 +216,7 @@ One Euro Filter Vector
 ## 🚀 Advanced Nodes
 
 ### Set Process Noise (Kalman)
+**Category:** Advanced Filters > Advanced
 
 Adjusts Kalman filter process noise (Q parameter).
 
@@ -216,12 +230,13 @@ Set Process Noise
 ```
 
 **Effects:**
-- Higher Q = Trusts measurements more
-- Lower Q = Trusts predictions more
+- Higher Q = Trust measurements more
+- Lower Q = Trust predictions more
 
 ---
 
 ### Set Measurement Noise (Kalman)
+**Category:** Advanced Filters > Advanced
 
 Adjusts Kalman filter measurement noise (R parameter).
 
@@ -237,6 +252,7 @@ Set Measurement Noise
 ---
 
 ### Set Min Cutoff (One Euro)
+**Category:** Advanced Filters > Advanced
 
 Adjusts One Euro filter minimum cutoff frequency.
 
@@ -256,6 +272,7 @@ Set Min Cutoff
 ---
 
 ### Set Beta (One Euro)
+**Category:** Advanced Filters > Advanced
 
 Adjusts One Euro filter speed coefficient.
 
@@ -275,6 +292,7 @@ Set Beta
 ---
 
 ### Create Custom Preset
+**Category:** Advanced Filters > Custom Preset
 
 Creates a custom filter preset with specific parameters.
 
@@ -282,18 +300,47 @@ Creates a custom filter preset with specific parameters.
 Create Custom Preset
 ├─ Input
 │  ├─ Preset Name (FString): Unique name
-│  ├─ Process Noise (float): Kalman Q
-│  ├─ Measurement Noise (float): Kalman R
-│  ├─ Min Cutoff (float): OneEuro frequency
-│  ├─ Beta (float): OneEuro speed coefficient
-│  └─ DCutoff (float): OneEuro derivative cutoff
+│  ├─ Filter Type (EFilterType): Kalman or OneEuro
+│  ├─ Process Noise/Min Cutoff (float): 
+│  │   - When Kalman selected: Process Noise (Q)
+│  │   - When OneEuro selected: Min Cutoff
+│  ├─ Measurement Noise/Beta (float):
+│  │   - When Kalman selected: Measurement Noise (R)
+│  │   - When OneEuro selected: Beta
+│  └─ DCutoff (float): OneEuro only (default: 1.0)
 └─ Output
-   └─ Success (bool): True if created
+   └─ Custom Preset (FCustomFilterPreset): Created preset
+```
+
+⚠️ **IMPORTANT NOTE:**
+- Parameter meanings change based on filter type!
+- Kalman Filter: 1st = Process Noise (Q), 2nd = Measurement Noise (R)
+- OneEuro Filter: 1st = Min Cutoff, 2nd = Beta
+- DCutoff is only used for OneEuro filters
+
+**Usage Examples:**
+```blueprint
+// Creating Kalman preset
+[Create Custom Preset]
+├─ Preset Name: "MyKalmanPreset"
+├─ Filter Type: Kalman
+├─ Process Noise/Min Cutoff: 0.05 (used as Q)
+├─ Measurement Noise/Beta: 0.1 (used as R)
+└─ DCutoff: 1.0 (ignored)
+
+// Creating OneEuro preset
+[Create Custom Preset]
+├─ Preset Name: "MyOneEuroPreset"
+├─ Filter Type: OneEuro
+├─ Process Noise/Min Cutoff: 0.5 (used as Min Cutoff)
+├─ Measurement Noise/Beta: 0.001 (used as Beta)
+└─ DCutoff: 1.5 (used)
 ```
 
 ---
 
 ### Apply Custom Preset
+**Category:** Advanced Filters > Custom Preset
 
 Applies a previously created custom preset to a filter.
 
@@ -301,14 +348,20 @@ Applies a previously created custom preset to a filter.
 Apply Custom Preset
 ├─ Input
 │  ├─ Target (UBaseFilterObject*): Filter instance
-│  └─ Preset Name (FString): Name of custom preset
+│  └─ Preset (FCustomFilterPreset): Preset to apply
 └─ Output
-   └─ Success (bool): True if applied
+   └─ Success (bool): True if applied successfully
 ```
+
+⚠️ **Note:**
+- Filter type must match preset type
+- Kalman presets only work with Kalman filters
+- OneEuro presets only work with OneEuro filters
 
 ---
 
 ### Create Filter Chain
+**Category:** Advanced Filters > Chain
 
 Creates a chain of multiple filters for sequential processing.
 
@@ -318,21 +371,22 @@ Create Filter Chain
 │  ├─ Filter Types (TArray<EFilterType>): List of filter types
 │  └─ Presets (TArray<EFilterPreset>): List of presets
 └─ Output
-   └─ Filter Chain (UFilterChain*): Chain instance
+   └─ Filter Chain (TArray<FFilterChainNode>): Chain array
 ```
 
 ---
 
 ### Process Through Chain
+**Category:** Advanced Filters > Chain
 
 Processes a value through multiple filters in sequence.
 
 ```
 Process Through Chain
 ├─ Input
-│  ├─ Target (UFilterChain*): Chain instance
+│  ├─ Filter Chain (TArray<FFilterChainNode>): Chain array
 │  ├─ Raw Value (float): Input value
-│  └─ Delta Time (float): Time delta
+│  └─ Delta Time (float): Time delta (unused)
 └─ Output
    └─ Filtered Value (float): Final result
 ```
@@ -342,6 +396,7 @@ Process Through Chain
 ## 🛠️ Utility Nodes
 
 ### Reset Filter
+**Category:** Advanced Filters > Utility
 
 Resets filter to initial state.
 
@@ -350,17 +405,18 @@ Reset Filter
 ├─ Input
 │  └─ Target (UBaseFilterObject*): Filter to reset
 └─ Output
-   └─ Success (bool): True if reset
+   └─ (none)
 ```
 
 ---
 
 ### Get Current Value
+**Category:** Advanced Filters > Utility
 
 Gets the current filtered value without updating.
 
 ```
-Get Current Value
+Get Current Value (Float)
 ├─ Input
 │  └─ Target (UBaseFilterObject*): Filter instance
 └─ Output
@@ -370,6 +426,7 @@ Get Current Value
 ---
 
 ### Is Filter Initialized
+**Category:** Advanced Filters > Utility
 
 Checks if filter has been initialized.
 
@@ -384,6 +441,7 @@ Is Filter Initialized
 ---
 
 ### Get Kalman Gain
+**Category:** Advanced Filters > Advanced
 
 Gets current Kalman gain value (diagnostic).
 
@@ -402,6 +460,7 @@ Get Kalman Gain
 ---
 
 ### Get Error Covariance
+**Category:** Advanced Filters > Advanced
 
 Gets current error covariance (uncertainty).
 
@@ -415,14 +474,15 @@ Get Error Covariance
 
 ---
 
-### Clear All Filters
+### Cleanup All Filters
+**Category:** Advanced Filters > Utility
 
 Removes all cached filter instances.
 
 ```
-Clear All Filters
+Cleanup All Filters
 └─ Output
-   └─ Cleared Count (int32): Number of filters removed
+   └─ (none)
 ```
 
 **Use Cases:**
@@ -433,6 +493,7 @@ Clear All Filters
 ---
 
 ### Get Filter Memory Usage
+**Category:** Advanced Filters > Performance
 
 Reports total memory used by all filters.
 
@@ -446,31 +507,68 @@ Get Filter Memory Usage
 ---
 
 ### Start Filter Profiling
+**Category:** Advanced Filters > Performance
 
 Begins performance profiling for a filter.
 
 ```
 Start Filter Profiling
 ├─ Input
-│  └─ Target (UBaseFilterObject*): Filter to profile
+│  └─ Profile ID (FString): Profile identifier
 └─ Output
-   └─ Success (bool): True if started
+   └─ (none)
 ```
 
 ---
 
 ### Stop Filter Profiling
+**Category:** Advanced Filters > Performance
 
 Stops profiling and returns performance data.
 
 ```
 Stop Filter Profiling
 ├─ Input
-│  └─ Target (UBaseFilterObject*): Filter being profiled
+│  └─ Profile ID (FString): Profile identifier
 └─ Output
    ├─ Average Time MS (float): Average update time
    ├─ Peak Time MS (float): Maximum update time
    └─ Update Count (int32): Total updates
+```
+
+---
+
+## 🔍 Debug and Recommendation Nodes
+
+### Recommend Filter Type
+**Category:** Advanced Filters > Recommendation
+
+Recommends the best filter type based on use case.
+
+```
+Recommend Filter Type
+├─ Input
+│  ├─ Needs Fast Response (bool): Fast response needed
+│  ├─ Needs Precise Prediction (bool): Precise prediction needed
+│  ├─ Is VR/AR Input (bool): Is VR/AR input
+│  └─ Has Variable Frame Rate (bool): Variable frame rate
+└─ Output
+   └─ Filter Type (EFilterType): Recommended filter type
+```
+
+---
+
+### Get Filter Statistics
+**Category:** Advanced Filters > Debug
+
+Get detailed filter information for debugging.
+
+```
+Get Filter Statistics
+├─ Input
+│  └─ Target (UBaseFilterObject*): Filter instance
+└─ Output
+   └─ Statistics (FString): Detailed statistics string
 ```
 
 ---
@@ -516,6 +614,43 @@ One Euro filter implementation.
 - `LastTime`: Last update timestamp
 
 **Blueprint Accessible:** Read-only
+
+---
+
+### FCustomFilterPreset
+
+Custom filter preset structure.
+
+**Properties:**
+- `PresetName`: Preset name
+- `FilterType`: Filter type (Kalman/OneEuro)
+- `ProcessNoise`: Kalman Q parameter
+- `MeasurementNoise`: Kalman R parameter
+- `MinCutoff`: OneEuro minimum cutoff
+- `Beta`: OneEuro speed coefficient
+- `DCutoff`: OneEuro derivative cutoff
+
+---
+
+### FFilterChainNode
+
+Filter chain node structure.
+
+**Properties:**
+- `Filter`: Filter instance
+- `Weight`: Blending weight (0.0 - 1.0)
+
+---
+
+### FFilterPerformanceData
+
+Performance data structure.
+
+**Properties:**
+- `AverageProcessingTime`: Average processing time
+- `MaxProcessingTime`: Maximum processing time
+- `UpdateCount`: Update count
+- `TotalProcessingTime`: Total processing time
 
 ---
 
@@ -575,22 +710,61 @@ enum class EFilterPreset : uint8
 
 ---
 
+## 🚧 Not Yet Implemented Features
+
+### Prediction Features (In documentation but not in code)
+
+The following features are planned for future updates:
+
+```
+// Planned features
+Predict Next State (Kalman Filter)
+├─ Input
+│  ├─ Target (UKalmanFilter*): Kalman filter
+│  └─ Steps Ahead (int32): Number of steps to predict
+└─ Output
+   └─ Predicted Value (float): Predicted value
+
+Get Predicted Value (Kalman Filter)
+├─ Input
+│  └─ Target (UKalmanFilter*): Kalman filter
+└─ Output
+   └─ Predicted Value (float): Current prediction
+```
+
+---
+
 ## 📝 Example Code
 
-### Basic Kalman Filtering
+### Basic Kalman Filtering (Using Advanced Filters > Core)
 ```blueprint
 // Begin Play
 Create Filter (Kalman) → Initialize (Medium) → Set Variable (MyFilter)
 
-// Event Tick  
+// Event Tick
 Get Variable (MyFilter) → Update Filter Float (Sensor Value) → Set Actor Location
 ```
 
 ### Advanced One Euro with Custom Preset
 ```blueprint
-// Begin Play
-Create Custom Preset ("VR_Hand", 0.0, 0.0, 0.3, 0.0001, 1.0)
-Create Filter (OneEuro) → Apply Custom Preset ("VR_Hand") → Set Variable
+// Begin Play - Kalman Custom Preset
+Create Custom Preset
+├─ Preset Name: "VR_Hand_Kalman"
+├─ Filter Type: Kalman
+├─ Process Noise/Min Cutoff: 0.05 (used as Q)
+├─ Measurement Noise/Beta: 0.02 (used as R)
+└─ DCutoff: 1.0 (ignored)
+
+// Begin Play - OneEuro Custom Preset
+Create Custom Preset
+├─ Preset Name: "VR_Hand_OneEuro"
+├─ Filter Type: OneEuro
+├─ Process Noise/Min Cutoff: 0.3 (used as Min Cutoff)
+├─ Measurement Noise/Beta: 0.0001 (used as Beta)
+└─ DCutoff: 1.0 (used)
+
+// Create filter and apply preset
+Create Filter (OneEuro) → Apply Custom Preset ("VR_Hand_OneEuro") → Set Variable
 
 // Event Tick
 Get Variable → Update Filter Vector (Controller Position, Delta Time) → Set Hand Mesh Location

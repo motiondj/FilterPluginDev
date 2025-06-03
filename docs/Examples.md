@@ -1,4 +1,4 @@
-# Blueprint Examples
+# Blueprint Examples (Improved Version)
 
 *Read this in other languages: [English](Examples.md), [한국어](Examples_KR.md)*
 
@@ -24,6 +24,20 @@ Practical examples and use cases for Advanced Filters Plugin
 
 ---
 
+## 🗂️ Node Category Quick Reference
+
+Quick reference for node locations used in these examples:
+
+| Frequency | Node | Category |
+|-----------|------|----------|
+| ⭐⭐⭐ | Kalman/OneEuro Filter Value/Vector | Advanced Filters > One-Click |
+| ⭐⭐ | Create/Initialize/Update Filter | Advanced Filters > Core |
+| ⭐⭐ | Create/Apply Custom Preset | Advanced Filters > Custom Preset |
+| ⭐ | Create Filter Chain | Advanced Filters > Chain |
+| ⭐ | Get Filter Statistics | Advanced Filters > Debug |
+
+---
+
 ## 📋 Table of Contents
 
 1. [Basic Examples](#basic-examples)
@@ -45,7 +59,7 @@ Create a camera that follows the player smoothly without jitter.
 ```blueprint
 Event Tick
 ├─ Get Player Location
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: Player Location
 │  ├─ Preset: Medium
 │  └─ Filter ID: "CameraFollow"
@@ -73,14 +87,14 @@ Reduce jittery mouse movement for better aiming.
 Event Tick
 ├─ Get Mouse Delta
 ├─ Break Vector2D (X, Y)
-├─ [One Euro Filter Value] (X)
+├─ [One Euro Filter Value] (X)  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: Mouse X
-│  ├─ Delta Time: Event Delta
+│  ├─ Delta Time: Event Delta ← Required!
 │  ├─ Preset: Low
 │  └─ Filter ID: "MouseX"
-├─ [One Euro Filter Value] (Y)
+├─ [One Euro Filter Value] (Y)  ← Same category
 │  ├─ Raw Value: Mouse Y
-│  ├─ Delta Time: Event Delta
+│  ├─ Delta Time: Event Delta ← Required!
 │  ├─ Preset: Low
 │  └─ Filter ID: "MouseY"
 └─ Add Controller Input (Yaw, Pitch)
@@ -90,6 +104,7 @@ Event Tick
 - One Euro filter for minimal latency
 - Low preset maintains responsiveness
 - Separate filters for X and Y axes
+- ⚠️ **One Euro requires Delta Time!**
 
 ---
 
@@ -102,7 +117,7 @@ Smooth health bar changes for professional UI feel.
 **Blueprint Setup:**
 ```blueprint
 On Health Changed Event
-├─ [Kalman Filter Value]
+├─ [Kalman Filter Value]  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: New Health
 │  ├─ Preset: High
 │  └─ Filter ID: "HealthBar"
@@ -134,22 +149,27 @@ Make AI movement more natural and less robotic.
 // In AI Controller
 Event Receive Move Completed
 ├─ Get Next Path Point
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: Path Point
 │  ├─ Preset: Medium
 │  └─ Filter ID: "AI_" + Character Name
 └─ Move To Location (Filtered)
 ```
 
-**Advanced Version:**
+**Advanced Version (Using 3-Node System):**
 ```blueprint
+// Category: Advanced Filters > Core
+Begin Play:
+├─ [Create Filter] (Type: Kalman)
+├─ [Initialize Filter] (Preset: Low)
+└─ Store as AIPathFilter
+
 // Smooth entire path
 Get Path Points Array
 ├─ For Each Loop
-│  ├─ [Kalman Filter Vector]
-│  │  ├─ Raw Value: Path Point
-│  │  ├─ Preset: Low
-│  │  └─ Filter ID: "PathSmooth"
+│  ├─ [Update Filter Vector]
+│  │  ├─ Target: AIPathFilter
+│  │  └─ Raw Value: Path Point
 │  └─ Add to Smoothed Path
 └─ Follow Smoothed Path
 ```
@@ -167,9 +187,9 @@ Create a smooth, lag-free menu cursor.
 // In UI Widget
 Event Tick
 ├─ Get Mouse Position
-├─ [One Euro Filter Vector]
+├─ [One Euro Filter Vector]  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: Mouse Position
-│  ├─ Delta Time: UI Delta Time
+│  ├─ Delta Time: UI Delta Time ← Required!
 │  ├─ Preset: Medium
 │  └─ Filter ID: "MenuCursor"
 └─ Set Cursor Widget Position
@@ -196,7 +216,7 @@ Smooth floating damage numbers.
 // In Damage Number Widget
 Event Construct
 ├─ Random Offset (-50, 50)
-├─ [Kalman Filter Value]
+├─ [Kalman Filter Value]  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: Random X Offset
 │  ├─ Preset: High
 │  └─ Filter ID: "DamageFloat"
@@ -219,37 +239,43 @@ Event Tick
 
 Reduce controller jitter for stable hand presence.
 
-**Blueprint Setup:**
+**Custom Preset Creation (Important!):**
+```blueprint
+// Category: Advanced Filters > Custom Preset
+Begin Play:
+[Create Custom Preset]
+├─ Preset Name: "VR_Hands"
+├─ Filter Type: OneEuro ← Selection important!
+├─ Process Noise/Min Cutoff: 0.4  ← Min Cutoff for OneEuro
+├─ Measurement Noise/Beta: 0.00001  ← Beta for OneEuro
+└─ DCutoff: 1.0
+    ↓
+Store as VRHandPreset
+```
+
+**Filter Application:**
 ```blueprint
 // In VR Pawn
 Event Tick
 ├─ Get Controller Location (Right)
-├─ [One Euro Filter Vector]
+├─ [One Euro Filter Vector]  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: Controller Location
-│  ├─ Delta Time: Delta Seconds
+│  ├─ Delta Time: Delta Seconds ← Required!
 │  ├─ Preset: Low
 │  └─ Filter ID: "RightHand"
 ├─ Get Controller Rotation
 ├─ [One Euro Filter Vector] (Convert to Vector)
 │  ├─ Raw Value: Rotation as Vector
-│  ├─ Delta Time: Delta Seconds
+│  ├─ Delta Time: Delta Seconds ← Required!
 │  ├─ Preset: Medium
 │  └─ Filter ID: "RightHandRot"
 └─ Set Hand Mesh Transform
 ```
 
-**Custom Preset for VR:**
-```blueprint
-Begin Play
-├─ [Create Custom Preset]
-│  ├─ Name: "VR_Controllers"
-│  ├─ Process Noise: 0.0
-│  ├─ Measurement Noise: 0.0
-│  ├─ Min Cutoff: 0.3
-│  ├─ Beta: 0.00001
-│  └─ DCutoff: 1.0
-└─ Apply to Both Hands
-```
+⚠️ **VR Considerations:**
+- One Euro filter is better for VR (lower latency)
+- Delta Time connection is mandatory
+- Too much filtering can cause motion sickness
 
 ---
 
@@ -262,7 +288,7 @@ Stabilize AR object placement on surfaces.
 // AR Placement Manager
 On Surface Detected
 ├─ Get Surface Point
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: Hit Location
 │  ├─ Preset: High
 │  └─ Filter ID: "ARSurface"
@@ -282,34 +308,28 @@ On Surface Detected
 
 Combine multiple filters for sophisticated effects.
 
-**Blueprint Setup:**
+**Chain Creation:**
 ```blueprint
-// Double filtering for ultra-smooth camera
-Event Tick
-├─ Get Target Location
-├─ [One Euro Filter Vector] (Low preset)
-│  └─ Filter ID: "CameraStage1"
-├─ [Kalman Filter Vector] (Medium preset)
-│  └─ Filter ID: "CameraStage2"
-└─ Set Camera Location
+// Category: Advanced Filters > Chain
+Begin Play:
+[Create Filter Chain]
+├─ Filter Types: [Kalman, OneEuro]
+├─ Presets: [High, Low]
+└─ Store as FilterChain
 ```
 
-**Filter Chain Node:**
+**Chain Usage:**
 ```blueprint
-// Using the chain system
-Begin Play
-├─ [Create Filter Chain]
-│  ├─ Types: [OneEuro, Kalman]
-│  └─ Presets: [Low, High]
-└─ Save as FilterChain
-
 Event Tick
+├─ Get Target Location
 ├─ [Process Through Chain]
-│  ├─ Chain: FilterChain
-│  ├─ Value: Target Location
+│  ├─ Filter Chain: FilterChain
+│  ├─ Raw Value: Target Location (Float only supported)
 │  └─ Delta Time: Delta Seconds
 └─ Use Result
 ```
+
+⚠️ **Current Limitation:** Chains only support Float values. Process Vector by each axis separately.
 
 ---
 
@@ -317,48 +337,46 @@ Event Tick
 
 Change filter strength based on gameplay state.
 
-**Blueprint Setup:**
+**Dynamic Preset Switching:**
 ```blueprint
-// Dynamic preset switching
 Event Tick
 ├─ Branch (Is Aiming?)
 │  ├─ True: Set Preset = Low
 │  └─ False: Set Preset = High
-├─ [One Euro Filter Value]
+├─ [One Euro Filter Value]  ← Category: Advanced Filters > One-Click
 │  ├─ Raw Value: Input
+│  ├─ Delta Time: Delta Seconds
 │  ├─ Preset: Dynamic Preset
 │  └─ Filter ID: "AdaptiveAim"
 └─ Apply to Camera
 ```
 
-**Speed-Based Adaptation:**
+**Advanced: Runtime Parameter Changes with 3-Node:**
 ```blueprint
-// Faster movement = less filtering
+// Category: Advanced Filters > Core + Advanced
 Get Velocity → Length
-├─ Map Range (0-600 → 0-1)
-├─ [Create Custom Preset]
+├─ Map Range (0-600 → 0.0-1.0)
+├─ [Set Beta]  ← Category: Advanced Filters > Advanced
+│  ├─ Target: Filter Instance
 │  └─ Beta: Mapped Velocity
 └─ Apply to Movement Filter
 ```
 
 ---
 
-### Example 11: Prediction Showcase
+### Example 11: Debug Visualization
 
-Use Kalman filter's prediction for look-ahead.
+See filter behavior in real-time.
 
-**Blueprint Setup:**
+**Statistics Display:**
 ```blueprint
-// Predictive targeting
-Event Tick
-├─ Get Target Velocity
-├─ Get Target Position
-├─ [Kalman Filter Vector] → Current Filtered
-├─ [Get Predicted Value] (custom node)
-│  ├─ Filter: Kalman Instance
-│  └─ Steps Ahead: 10
-├─ Draw Debug Sphere (Current - Blue)
-└─ Draw Debug Sphere (Predicted - Red)
+// Category: Advanced Filters > Debug
+Event Tick (Every 30 frames)
+├─ [Get Filter Statistics]
+│  └─ Target: Filter to Debug
+├─ Print String
+│  └─ Duration: 0.5 seconds
+└─ Draw Debug Info
 ```
 
 ---
@@ -377,7 +395,7 @@ Get Distance to Camera
 │  ├─ < 10m: High (smooth animations)
 │  ├─ < 50m: Medium
 │  └─ > 50m: Low (or skip)
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← Category: Advanced Filters > One-Click
 │  ├─ Preset: Selected
 │  └─ Filter ID: "Character_" + Index
 └─ Apply to Skeletal Mesh
@@ -385,28 +403,24 @@ Get Distance to Camera
 
 ---
 
-### Example 13: Batch Processing
+### Example 13: Performance Profiling
 
-Filter multiple values efficiently.
+Measure filter performance.
 
-**Blueprint Setup:**
+**Profiling Setup:**
 ```blueprint
-// Process array of positions
-Get All Particle Positions
-├─ For Each Loop
-│  ├─ [Kalman Filter Vector]
-│  │  └─ Filter ID: "Particle_" + Index
-│  └─ Add to Filtered Array
-└─ Update All Particles
-```
+// Category: Advanced Filters > Performance
+Begin Play:
+[Start Filter Profiling]
+└─ Profile ID: "MainCharacterFilter"
 
-**Optimized Version:**
-```blueprint
-// Process only visible particles
-Get Visible Particles
-├─ Filter by Distance
-├─ Batch Update (custom C++)
-└─ Apply Results
+End Play:
+[Stop Filter Profiling]
+├─ Profile ID: "MainCharacterFilter"
+└─ Log Results:
+    ├─ Average Time MS
+    ├─ Peak Time MS
+    └─ Update Count
 ```
 
 ---
@@ -438,15 +452,18 @@ A complete first-person controller with filtered input.
 ```blueprint
 // Input smoothing
 Input Axis MoveForward
-├─ [One Euro Filter Value]
+├─ [One Euro Filter Value]  ← Category: Advanced Filters > One-Click
+│  ├─ Raw Value: Axis Value
+│  ├─ Delta Time: World Delta ← Required!
 │  ├─ Preset: Low
 │  └─ Filter ID: "MoveForward"
 └─ Add Movement Input
 
 Input Axis Turn
 ├─ [One Euro Filter Value]
+│  ├─ Raw Value: Axis Value
+│  ├─ Delta Time: World Delta ← Required!
 │  ├─ Preset: Low
-│  ├─ Delta Time: Delta
 │  └─ Filter ID: "MouseTurn"
 └─ Add Controller Yaw
 ```
@@ -456,37 +473,34 @@ Input Axis Turn
 // Camera smoothing
 Event Tick
 ├─ Get Socket Location "Head"
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← Category: Advanced Filters > One-Click
 │  ├─ Preset: Medium
 │  └─ Filter ID: "CameraPos"
 ├─ Get Control Rotation
-├─ [One Euro Filter] (Rotator as Vector)
+├─ [One Euro Filter Vector] (Rotator as Vector)
+│  ├─ Delta Time: World Delta ← Required!
 │  ├─ Preset: Low
 │  └─ Filter ID: "CameraRot"
 └─ Set Camera Transform
 ```
 
-**Weapon Sway:**
-```blueprint
-// Weapon lag
-Event Tick
-├─ Get Look Velocity
-├─ [Kalman Filter Vector]
-│  ├─ Preset: High
-│  └─ Filter ID: "WeaponSway"
-├─ Map to Sway Offset
-└─ Add to Weapon Position
-```
+---
+
+## 🚧 Known Limitations
+
+1. **Filter chains only support Float** - Process Vector by each axis
+2. **Prediction features not implemented** - Predict Next State not yet available
+3. **One Euro requires Delta Time** - Will behave strangely without it
 
 ---
 
-## 🎯 Tips for Examples
+## 🎯 Example Tips
 
-1. **Start Simple** - Test with one filter before chaining
-2. **Visualize** - Use debug draws to see filter effects
-3. **Profile** - Monitor performance with profiling nodes
-4. **Experiment** - Try different presets for your use case
-5. **Save Presets** - Create custom presets for reuse
+1. **Start Simple** - Test with one-click macros first, then move to 3-node if needed
+2. **Visualize** - Use Get Filter Statistics to see behavior
+3. **Profile** - Use Start/Stop Profiling when performance matters
+4. **Experiment** - Try different presets and filter types
+5. **Remember Categories** - Check categories if you can't find nodes
 
 ---
 

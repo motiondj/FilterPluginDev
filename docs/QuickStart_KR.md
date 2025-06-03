@@ -1,4 +1,4 @@
-# 빠른 시작 가이드
+# 빠른 시작 가이드 (개선판)
 
 *다른 언어로 읽기: [English](QuickStart.md), [한국어](QuickStart_KR.md)*
 
@@ -21,6 +21,26 @@
   - [API 레퍼런스](APIReference_KR.md)
   - [성능 가이드](Performance_KR.md)
   - [문제 해결](Troubleshooting_KR.md)
+
+---
+
+## 🗂️ 블루프린트에서 노드 찾기
+
+플러그인이 설치되면, 블루프린트 에디터에서 우클릭하여 다음과 같이 노드를 찾을 수 있습니다:
+
+### 방법 1: 카테고리로 찾기
+```
+Advanced Filters
+├── Core          → 3-노드 시스템 (Create, Initialize, Update)
+├── One-Click     → 원클릭 매크로 (Kalman/OneEuro Filter Value/Vector)
+├── Utility       → 유틸리티 (Reset, Get Current Value 등)
+└── (기타 카테고리...)
+```
+
+### 방법 2: 검색으로 찾기
+- "Kalman" 검색 → 칼만 필터 관련 노드
+- "One Euro" 검색 → 원유로 필터 관련 노드
+- "Filter Value" 검색 → 원클릭 매크로들
 
 ---
 
@@ -60,7 +80,8 @@ Event Tick
     ↓
 [Random Float in Range] (-10, 10) → [Add] (노이즈 추가)
     ↓
-[Kalman Filter Value]
+[Kalman Filter Value]  ← 카테고리: Advanced Filters > One-Click
+- Raw Value: (연결)
 - Preset: Medium
 - Filter ID: "Position"
     ↓
@@ -82,6 +103,8 @@ Event Tick
 - ✅ 랜덤 노이즈가 추가됩니다 (센서 떨림 시뮬레이션)
 - ✅ 칼만 필터로 움직임을 부드럽게 만듭니다
 - ✅ 깔끔하고 전문적인 모션이 완성됩니다
+
+---
 
 ## 🔥 이것도 해보세요
 
@@ -105,12 +128,24 @@ Preset 파라미터 변경:
 ### 3. 원유로 필터로 전환
 
 `Kalman Filter Value`를 `One Euro Filter Value`로 교체:
-- Event Tick에서 `Delta Time` 입력 추가
-- 더 빠른 반응을 확인!
+
+```blueprint
+[One Euro Filter Value]  ← 카테고리: Advanced Filters > One-Click
+├─ Raw Value: 노이즈 신호
+├─ Delta Time: Event Tick의 Delta Seconds ← 중요!
+├─ Preset: Medium
+└─ Filter ID: "Position"
+```
+
+**주의**: 원유로 필터는 반드시 Delta Time이 필요합니다!
+
+---
 
 ## 💡 원클릭 vs 3-노드 시스템
 
 ### 원클릭 (방금 사용한 방식)
+**카테고리**: Advanced Filters > One-Click
+
 ```blueprint
 [센서 값] → [Kalman Filter Value] → [결과]
 ```
@@ -118,6 +153,8 @@ Preset 파라미터 변경:
 ❌ 단점: Filter ID가 바뀌면 매번 새 필터 생성
 
 ### 3-노드 시스템 (더 많은 제어)
+**카테고리**: Advanced Filters > Core
+
 ```blueprint
 Begin Play:
 [Create Filter] → [Initialize] → [변수로 저장]
@@ -128,22 +165,55 @@ Event Tick:
 ✅ 장점: 완전한 제어, 런타임에 파라미터 변경 가능
 ❌ 단점: 3개의 노드와 변수 관리 필요
 
+---
+
 ## 🎮 실제 사용 예제
 
 ### 부드러운 마우스 시점
 ```blueprint
+카테고리: Advanced Filters > One-Click
+
 [Mouse X] → [One Euro Filter Value] → [Add Controller Yaw Input]
+            ├─ Delta Time: 필수!
+            └─ Filter ID: "MouseX"
 ```
 
 ### 안정적인 체력바
 ```blueprint
+카테고리: Advanced Filters > One-Click
+
 [현재 체력] → [Kalman Filter Value] → [체력바 퍼센트 설정]
+               └─ Filter ID: "HealthBar"
 ```
 
 ### VR 손 추적
 ```blueprint
+카테고리: Advanced Filters > One-Click
+
 [컨트롤러 위치] → [One Euro Filter Vector] → [손 위치 설정]
+                  ├─ Delta Time: 필수!
+                  └─ Filter ID: "RightHand"
 ```
+
+---
+
+## 🚀 고급 기능 맛보기
+
+### 커스텀 프리셋 만들기
+**카테고리**: Advanced Filters > Custom Preset
+
+```blueprint
+[Create Custom Preset]
+├─ Preset Name: "MyVRPreset"
+├─ Filter Type: OneEuro
+├─ Process Noise/Min Cutoff: 0.3  ← OneEuro에서는 Min Cutoff로 사용
+├─ Measurement Noise/Beta: 0.0001  ← OneEuro에서는 Beta로 사용
+└─ DCutoff: 1.0
+```
+
+⚠️ **주의**: 파라미터 이름이 필터 타입에 따라 다른 의미를 가집니다!
+
+---
 
 ## ❓ 자주 묻는 질문
 
@@ -161,14 +231,25 @@ Event Tick:
 - Delta Time 연결 확인 (원유로만 해당)
 - 일관된 Filter ID 사용 확인
 
+**Q: 노드를 찾을 수 없어요?**
+- 플러그인이 활성화되었는지 확인
+- "Advanced Filters" 카테고리 확인
+- 전체 검색에서 "Kalman" 또는 "One Euro" 검색
+
+---
+
 ## 🚨 문제 해결
 
 | 문제 | 해결책 |
 |------|--------|
 | 필터 노드를 찾을 수 없음 | Plugins 메뉴에서 플러그인 활성화 확인 |
+| 노드가 특정 카테고리에 없음 | "Advanced Filters > 하위카테고리" 확인 |
 | 필터가 지연되는 것 같음 | 칼만은 정상, 원유로 시도 |
 | 너무 많이 스무딩됨 | "Low" 프리셋 사용 |
 | 스무딩이 부족함 | "High" 프리셋 사용 |
+| 원유로가 이상하게 작동함 | Delta Time 연결 확인! |
+
+---
 
 ## 📚 다음 단계
 
@@ -178,6 +259,37 @@ Event Tick:
 - 모든 기능은 [사용자 매뉴얼](UserManual_KR.md) 참조
 - 기술적 세부사항은 [API 레퍼런스](APIReference_KR.md) 확인
 - 고급 사용법은 [예제 프로젝트](Examples_KR.md) 탐색
+
+---
+
+## 🎯 빠른 참조 - 노드 위치
+
+### 자주 사용하는 노드들의 정확한 위치:
+
+| 노드 이름 | 카테고리 경로 | 용도 |
+|----------|--------------|------|
+| **Kalman Filter Value** | Advanced Filters > One-Click | Float 원클릭 칼만 필터링 |
+| **Kalman Filter Vector** | Advanced Filters > One-Click | Vector 원클릭 칼만 필터링 |
+| **One Euro Filter Value** | Advanced Filters > One-Click | Float 원클릭 원유로 필터링 |
+| **One Euro Filter Vector** | Advanced Filters > One-Click | Vector 원클릭 원유로 필터링 |
+| **Create Filter** | Advanced Filters > Core | 3-노드: 필터 생성 |
+| **Initialize Filter** | Advanced Filters > Core | 3-노드: 필터 초기화 |
+| **Update Filter** | Advanced Filters > Core | 3-노드: 필터 업데이트 |
+| **Create Custom Preset** | Advanced Filters > Custom Preset | 커스텀 설정 생성 |
+| **Reset Filter** | Advanced Filters > Utility | 필터 리셋 |
+| **Get Filter Statistics** | Advanced Filters > Debug | 디버그 정보 |
+
+---
+
+## 🚧 아직 구현되지 않은 기능 안내
+
+다음 기능들은 문서에는 있지만 현재 버전에서는 사용할 수 없습니다:
+- **Predict Next State** - 미래 상태 예측 (칼만)
+- **Get Predicted Value** - 예측값 가져오기 (칼만)
+
+이 기능들은 다음 업데이트에서 추가될 예정입니다.
+
+---
 
 ## 🆘 도움이 필요하신가요?
 

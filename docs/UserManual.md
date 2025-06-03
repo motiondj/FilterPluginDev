@@ -1,4 +1,4 @@
-# User Manual
+# User Manual (Improved Version)
 
 *Read this in other languages: [English](UserManual.md), [한국어](UserManual_KR.md)*
 
@@ -21,6 +21,52 @@ Complete guide to Advanced Filters Plugin for Unreal Engine
   - [API Reference](APIReference.md)
   - [Performance Guide](Performance.md)
   - [Troubleshooting](Troubleshooting.md)
+
+---
+
+## 🗂️ Blueprint Node Location Guide
+
+### Node Category Map
+
+When right-clicking in the Blueprint editor, you can find nodes in these categories:
+
+```
+Advanced Filters
+├── Core (Core 3-node system)
+│   ├── Create Filter
+│   ├── Initialize Filter
+│   └── Update Filter (Float/Vector)
+├── One-Click (One-click macros)
+│   ├── Kalman Filter Value
+│   ├── Kalman Filter Vector
+│   ├── One Euro Filter Value
+│   └── One Euro Filter Vector
+├── Utility (Utilities)
+│   ├── Reset Filter
+│   ├── Get Current Value
+│   ├── Is Filter Initialized
+│   └── Cleanup All Filters
+├── Advanced (Advanced features)
+│   ├── Set Process Noise
+│   ├── Set Measurement Noise
+│   ├── Set Min Cutoff
+│   └── Set Beta
+├── Custom Preset (Custom presets)
+│   ├── Create Custom Preset
+│   └── Apply Custom Preset
+├── Chain (Filter chains)
+│   ├── Create Filter Chain
+│   └── Process Through Chain
+├── Performance (Performance)
+│   ├── Start Profiling
+│   └── Stop Profiling
+├── Debug (Debug)
+│   └── Get Filter Statistics
+└── Recommendation (Recommendations)
+    └── Recommend Filter Type
+```
+
+**💡 Tip**: Type "Advanced Filters" in the search box to see all related nodes!
 
 ---
 
@@ -96,6 +142,8 @@ Perfect for beginners or quick prototyping.
 
 #### Float Filtering
 ```blueprint
+Category: Advanced Filters > One-Click
+
 [Noisy Value] → [Kalman Filter Value] → [Smooth Result]
                   │
                   ├─ Preset: Low/Medium/High
@@ -104,6 +152,8 @@ Perfect for beginners or quick prototyping.
 
 #### Vector Filtering
 ```blueprint
+Category: Advanced Filters > One-Click
+
 [Noisy Position] → [One Euro Filter Vector] → [Smooth Position]
                     │
                     ├─ Preset: Medium
@@ -117,6 +167,8 @@ Offers complete control over filter lifecycle and parameters.
 
 #### Setup Phase
 ```blueprint
+Category: Advanced Filters > Core
+
 Begin Play:
 [Create Filter] → [Initialize Filter] → [Store in Variable]
        │                    │
@@ -151,24 +203,31 @@ Each filter includes three presets optimized for different scenarios:
 Create tailored filter configurations for specific needs.
 
 ```blueprint
+Category: Advanced Filters > Custom Preset
+
 [Create Custom Preset]
 ├─ Name: "MyVRController"
-├─ Kalman Process Noise: 0.1
-├─ Kalman Measurement Noise: 0.05
-├─ OneEuro Min Cutoff: 0.5
-├─ OneEuro Beta: 0.0001
-└─ OneEuro DCutoff: 1.0
-    ↓
-[Apply Custom Preset]
-├─ Filter: Target Filter
-└─ Preset Name: "MyVRController"
+├─ Filter Type: OneEuro when selected
+│  ├─ Process Noise/Min Cutoff: 0.5 (Used as Min Cutoff)
+│  ├─ Measurement Noise/Beta: 0.0001 (Used as Beta)
+│  └─ DCutoff: 1.0
+└─ Filter Type: Kalman when selected
+   ├─ Process Noise/Min Cutoff: 0.05 (Used as Process Noise)
+   ├─ Measurement Noise/Beta: 0.1 (Used as Measurement Noise)
+   └─ DCutoff: (Ignored)
 ```
+
+⚠️ **Important**: Parameter names have different meanings depending on filter type!
+- **Kalman Filter**: First = Process Noise (Q), Second = Measurement Noise (R)
+- **OneEuro Filter**: First = Min Cutoff, Second = Beta
 
 ### Filter Chaining
 
 Combine multiple filters for sophisticated processing.
 
 ```blueprint
+Category: Advanced Filters > Chain
+
 [Create Filter Chain]
 ├─ Filter 1: Kalman (High)    // Remove large noise
 ├─ Filter 2: OneEuro (Low)    // Maintain responsiveness
@@ -184,6 +243,8 @@ Combine multiple filters for sophisticated processing.
 Mix outputs from multiple filters dynamically.
 
 ```blueprint
+Category: Advanced Filters > Chain
+
 [Blend Filter Outputs]
 ├─ Filter A: Kalman Result
 ├─ Filter B: OneEuro Result
@@ -196,6 +257,8 @@ Mix outputs from multiple filters dynamically.
 Monitor filter performance in real-time.
 
 ```blueprint
+Category: Advanced Filters > Performance
+
 [Start Filter Profiling]
     ↓
 [... Your Filtering Logic ...]
@@ -214,10 +277,12 @@ Monitor filter performance in real-time.
 Let the system automatically adjust filter parameters.
 
 ```blueprint
-[Enable Auto Tune]
+Category: Advanced Filters > Advanced
+
+[Auto Tune Filter]
 ├─ Filter: Target Filter
-├─ Sample Count: 100
-└─ Target Smoothness: 0.8
+├─ Recent Values: Array of 100 recent values
+└─ Success: Auto-tune success status
     ↓
 [Filter automatically adjusts based on signal characteristics]
 ```
@@ -227,13 +292,16 @@ Let the system automatically adjust filter parameters.
 Access detailed filter information for debugging.
 
 ```blueprint
+Category: Advanced Filters > Debug
+
 [Get Filter Statistics]
-├─ Current Value: 45.2
-├─ Predicted Value: 45.8
-├─ Kalman Gain: 0.82
-├─ Error Covariance: 0.03
-├─ Update Count: 523
-└─ Last Update Time: 0.016ms
+├─ Target: Filter Instance
+└─ Output: Statistics String
+    - Filter Type
+    - Current Value
+    - Kalman Gain (Kalman only)
+    - Current Cutoff (OneEuro only)
+    - Update Count
 ```
 
 ---
@@ -288,8 +356,8 @@ Always connect Delta Time for One Euro filters:
 
 Filters are automatically managed, but follow these guidelines:
 - Reuse Filter IDs when possible
-- Clear unused filters with `Clear All Filters` node
-- Monitor memory with `Get Filter Memory Usage`
+- Clear unused filters with `Cleanup All Filters` node (Advanced Filters > Utility)
+- Monitor memory with `Get Filter Memory Usage` (Advanced Filters > Performance)
 
 ---
 
@@ -309,9 +377,8 @@ Filters are automatically managed, but follow these guidelines:
 1. **Batch Processing**
    ```blueprint
    // Process multiple values with same filter
-   [Update Filter Batch]
-   ├─ Values: Array of Floats
-   └─ Output: Array of Filtered Values
+   [For Each Loop]
+   └─ [Update Filter] (Use same filter instance)
    ```
 
 2. **Conditional Updates**
@@ -324,9 +391,9 @@ Filters are automatically managed, but follow these guidelines:
 3. **LOD-Based Filtering**
    ```blueprint
    // Use different presets based on distance
-   Near: High Preset
-   Medium: Medium Preset
-   Far: Low Preset or Skip
+   Near: High preset
+   Medium: Medium preset
+   Far: Low preset or Skip
    ```
 
 4. **Frame Rate Independence**
@@ -345,11 +412,11 @@ Filters are automatically managed, but follow these guidelines:
 Enable visual debugging to see filter behavior:
 
 ```blueprint
-[Set Filter Debug Mode]
+Category: Advanced Filters > Debug
+
+[Get Filter Statistics]
 ├─ Filter: Target Filter
-├─ Show Graph: True
-├─ Show Statistics: True
-└─ Graph Size: 200x100
+└─ Display output with Print String
 ```
 
 ### Common Issues
@@ -363,6 +430,18 @@ Enable visual debugging to see filter behavior:
 
 ---
 
+## 🚧 Features Not Yet Implemented
+
+The following features are described in documentation but not implemented in the current version:
+
+### Prediction Features (Coming in Future Updates)
+- **Predict Next State**: Future state prediction for Kalman filters
+- **Get Predicted Value**: Get current predicted value
+
+These features will be added in the next version.
+
+---
+
 ## 📝 Summary
 
 The Advanced Filters Plugin empowers you to create professional, polished experiences with minimal effort. Whether you're building a VR application, stabilizing camera movement, or processing sensor data, these filters provide the tools you need.
@@ -373,6 +452,7 @@ The Advanced Filters Plugin empowers you to create professional, polished experi
 - 📊 Start with presets, customize as needed
 - 🔧 Use one-click for simplicity, 3-node for control
 - 📈 Monitor performance with built-in profiling
+- 🗂️ Understanding categories makes finding nodes easier!
 
 ---
 

@@ -1,4 +1,4 @@
-# API 레퍼런스
+# API 레퍼런스 (개선판)
 
 *다른 언어로 읽기: [English](APIReference.md), [한국어](APIReference_KR.md)*
 
@@ -9,18 +9,23 @@
 - [← 이전: 사용자 매뉴얼](UserManual_KR.md)
 - [→ 다음: 블루프린트 예제](Examples_KR.md)
 
-### 📖 전체 문서
-- **시작하기**
-  - [빠른 시작 가이드](QuickStart_KR.md)
-  - [설치 가이드](Installation_KR.md)
-- **사용자 가이드**
-  - [사용자 매뉴얼](UserManual_KR.md)
-  - [블루프린트 예제](Examples_KR.md)
-  - [모범 사례](BestPractices_KR.md)
-- **기술 문서**
-  - **API 레퍼런스** (현재 페이지)
-  - [성능 가이드](Performance_KR.md)
-  - [문제 해결](Troubleshooting_KR.md)
+---
+
+## 🗂️ 노드 카테고리 가이드
+
+블루프린트에서 노드를 찾을 때 다음 카테고리를 확인하세요:
+
+| 카테고리 | 포함된 노드 | 용도 |
+|---------|-----------|------|
+| **Advanced Filters > Core** | Create Filter, Initialize Filter, Update Filter | 3-노드 시스템의 핵심 기능 |
+| **Advanced Filters > One-Click** | Kalman/OneEuro Filter Value/Vector | 원클릭 매크로 |
+| **Advanced Filters > Utility** | Reset, Get Current Value, Cleanup | 유틸리티 기능 |
+| **Advanced Filters > Advanced** | Compare Outputs, Auto Tune | 고급 기능 |
+| **Advanced Filters > Chain** | Create Chain, Process Through Chain | 필터 체인 |
+| **Advanced Filters > Custom Preset** | Create/Apply Custom Preset | 커스텀 프리셋 |
+| **Advanced Filters > Performance** | Start/Stop Profiling | 성능 측정 |
+| **Advanced Filters > Debug** | Get Statistics, Response Curve | 디버깅 도구 |
+| **Advanced Filters > Recommendation** | Recommend Filter Type | 필터 추천 |
 
 ---
 
@@ -38,6 +43,7 @@
 ## 🔧 핵심 노드
 
 ### Create Filter (필터 생성)
+**카테고리:** Advanced Filters > Core
 
 지정된 타입의 새 필터 인스턴스를 생성합니다.
 
@@ -62,6 +68,7 @@ Create Filter
 ---
 
 ### Initialize Filter (필터 초기화)
+**카테고리:** Advanced Filters > Core
 
 지정된 프리셋으로 필터를 초기화합니다.
 
@@ -85,6 +92,7 @@ Initialize Filter
 ---
 
 ### Update Filter Float (Float 필터 업데이트)
+**카테고리:** Advanced Filters > Core
 
 새 float 값으로 필터를 업데이트하고 필터링된 결과를 반환합니다.
 
@@ -104,6 +112,7 @@ Update Filter Float
 ---
 
 ### Update Filter Vector (Vector 필터 업데이트)
+**카테고리:** Advanced Filters > Core
 
 새 벡터 값으로 필터를 업데이트하고 필터링된 결과를 반환합니다.
 
@@ -125,6 +134,7 @@ Update Filter Vector
 ## 🎯 원클릭 매크로
 
 ### Kalman Filter Value (칼만 필터 값)
+**카테고리:** Advanced Filters > One-Click
 
 float 값을 위한 원클릭 칼만 필터링.
 
@@ -146,6 +156,7 @@ Kalman Filter Value
 ---
 
 ### Kalman Filter Vector (칼만 필터 벡터)
+**카테고리:** Advanced Filters > One-Click
 
 벡터 값을 위한 원클릭 칼만 필터링.
 
@@ -162,6 +173,7 @@ Kalman Filter Vector
 ---
 
 ### One Euro Filter Value (원유로 필터 값)
+**카테고리:** Advanced Filters > One-Click
 
 float 값을 위한 원클릭 원유로 필터링.
 
@@ -184,6 +196,7 @@ One Euro Filter Value
 ---
 
 ### One Euro Filter Vector (원유로 필터 벡터)
+**카테고리:** Advanced Filters > One-Click
 
 벡터 값을 위한 원클릭 원유로 필터링.
 
@@ -203,6 +216,7 @@ One Euro Filter Vector
 ## 🚀 고급 노드
 
 ### Set Process Noise (프로세스 노이즈 설정 - 칼만)
+**카테고리:** Advanced Filters > Advanced
 
 칼만 필터 프로세스 노이즈 (Q 파라미터) 조정.
 
@@ -222,6 +236,7 @@ Set Process Noise
 ---
 
 ### Set Measurement Noise (측정 노이즈 설정 - 칼만)
+**카테고리:** Advanced Filters > Advanced
 
 칼만 필터 측정 노이즈 (R 파라미터) 조정.
 
@@ -237,6 +252,7 @@ Set Measurement Noise
 ---
 
 ### Set Min Cutoff (최소 컷오프 설정 - 원유로)
+**카테고리:** Advanced Filters > Advanced
 
 원유로 필터 최소 컷오프 주파수 조정.
 
@@ -256,6 +272,7 @@ Set Min Cutoff
 ---
 
 ### Set Beta (베타 설정 - 원유로)
+**카테고리:** Advanced Filters > Advanced
 
 원유로 필터 속도 계수 조정.
 
@@ -275,6 +292,7 @@ Set Beta
 ---
 
 ### Create Custom Preset (커스텀 프리셋 생성)
+**카테고리:** Advanced Filters > Custom Preset
 
 특정 파라미터로 커스텀 필터 프리셋 생성.
 
@@ -282,18 +300,47 @@ Set Beta
 Create Custom Preset
 ├─ 입력
 │  ├─ Preset Name (FString): 고유 이름
-│  ├─ Process Noise (float): 칼만 Q
-│  ├─ Measurement Noise (float): 칼만 R
-│  ├─ Min Cutoff (float): 원유로 주파수
-│  ├─ Beta (float): 원유로 속도 계수
-│  └─ DCutoff (float): 원유로 미분 컷오프
+│  ├─ Filter Type (EFilterType): Kalman 또는 OneEuro
+│  ├─ Process Noise/Min Cutoff (float): 
+│  │   - Kalman 선택 시: Process Noise (Q)
+│  │   - OneEuro 선택 시: Min Cutoff
+│  ├─ Measurement Noise/Beta (float):
+│  │   - Kalman 선택 시: Measurement Noise (R)
+│  │   - OneEuro 선택 시: Beta
+│  └─ DCutoff (float): OneEuro 전용 (기본값: 1.0)
 └─ 출력
-   └─ Success (bool): 생성 성공 시 True
+   └─ Custom Preset (FCustomFilterPreset): 생성된 프리셋
+```
+
+⚠️ **중요 주의사항:**
+- 파라미터의 의미가 필터 타입에 따라 달라집니다!
+- Kalman 필터: 첫 번째 = Process Noise (Q), 두 번째 = Measurement Noise (R)
+- OneEuro 필터: 첫 번째 = Min Cutoff, 두 번째 = Beta
+- DCutoff는 OneEuro 필터에서만 사용됩니다
+
+**사용 예제:**
+```blueprint
+// Kalman 프리셋 생성
+[Create Custom Preset]
+├─ Preset Name: "MyKalmanPreset"
+├─ Filter Type: Kalman
+├─ Process Noise/Min Cutoff: 0.05 (Q로 사용됨)
+├─ Measurement Noise/Beta: 0.1 (R로 사용됨)
+└─ DCutoff: 1.0 (무시됨)
+
+// OneEuro 프리셋 생성
+[Create Custom Preset]
+├─ Preset Name: "MyOneEuroPreset"
+├─ Filter Type: OneEuro
+├─ Process Noise/Min Cutoff: 0.5 (Min Cutoff로 사용됨)
+├─ Measurement Noise/Beta: 0.001 (Beta로 사용됨)
+└─ DCutoff: 1.5 (사용됨)
 ```
 
 ---
 
 ### Apply Custom Preset (커스텀 프리셋 적용)
+**카테고리:** Advanced Filters > Custom Preset
 
 이전에 생성한 커스텀 프리셋을 필터에 적용.
 
@@ -301,14 +348,20 @@ Create Custom Preset
 Apply Custom Preset
 ├─ 입력
 │  ├─ Target (UBaseFilterObject*): 필터 인스턴스
-│  └─ Preset Name (FString): 커스텀 프리셋 이름
+│  └─ Preset (FCustomFilterPreset): 적용할 프리셋
 └─ 출력
    └─ Success (bool): 적용 성공 시 True
 ```
 
+⚠️ **주의사항:**
+- 필터 타입과 프리셋 타입이 일치해야 합니다
+- Kalman 프리셋은 Kalman 필터에만 적용 가능
+- OneEuro 프리셋은 OneEuro 필터에만 적용 가능
+
 ---
 
 ### Create Filter Chain (필터 체인 생성)
+**카테고리:** Advanced Filters > Chain
 
 순차 처리를 위한 다중 필터 체인 생성.
 
@@ -318,21 +371,22 @@ Create Filter Chain
 │  ├─ Filter Types (TArray<EFilterType>): 필터 타입 목록
 │  └─ Presets (TArray<EFilterPreset>): 프리셋 목록
 └─ 출력
-   └─ Filter Chain (UFilterChain*): 체인 인스턴스
+   └─ Filter Chain (TArray<FFilterChainNode>): 체인 배열
 ```
 
 ---
 
 ### Process Through Chain (체인을 통한 처리)
+**카테고리:** Advanced Filters > Chain
 
 여러 필터를 순차적으로 통과하여 값 처리.
 
 ```
 Process Through Chain
 ├─ 입력
-│  ├─ Target (UFilterChain*): 체인 인스턴스
+│  ├─ Filter Chain (TArray<FFilterChainNode>): 체인 배열
 │  ├─ Raw Value (float): 입력 값
-│  └─ Delta Time (float): 시간 델타
+│  └─ Delta Time (float): 시간 델타 (미사용)
 └─ 출력
    └─ Filtered Value (float): 최종 결과
 ```
@@ -342,6 +396,7 @@ Process Through Chain
 ## 🛠️ 유틸리티 노드
 
 ### Reset Filter (필터 리셋)
+**카테고리:** Advanced Filters > Utility
 
 필터를 초기 상태로 리셋.
 
@@ -350,17 +405,18 @@ Reset Filter
 ├─ 입력
 │  └─ Target (UBaseFilterObject*): 리셋할 필터
 └─ 출력
-   └─ Success (bool): 리셋 성공 시 True
+   └─ (없음)
 ```
 
 ---
 
 ### Get Current Value (현재 값 가져오기)
+**카테고리:** Advanced Filters > Utility
 
 업데이트 없이 현재 필터링된 값 가져오기.
 
 ```
-Get Current Value
+Get Current Value (Float)
 ├─ 입력
 │  └─ Target (UBaseFilterObject*): 필터 인스턴스
 └─ 출력
@@ -370,6 +426,7 @@ Get Current Value
 ---
 
 ### Is Filter Initialized (필터 초기화 확인)
+**카테고리:** Advanced Filters > Utility
 
 필터가 초기화되었는지 확인.
 
@@ -384,6 +441,7 @@ Is Filter Initialized
 ---
 
 ### Get Kalman Gain (칼만 게인 가져오기)
+**카테고리:** Advanced Filters > Advanced
 
 현재 칼만 게인 값 가져오기 (진단용).
 
@@ -402,6 +460,7 @@ Get Kalman Gain
 ---
 
 ### Get Error Covariance (오차 공분산 가져오기)
+**카테고리:** Advanced Filters > Advanced
 
 현재 오차 공분산 (불확실성) 가져오기.
 
@@ -415,14 +474,15 @@ Get Error Covariance
 
 ---
 
-### Clear All Filters (모든 필터 제거)
+### Cleanup All Filters (모든 필터 제거)
+**카테고리:** Advanced Filters > Utility
 
 캐시된 모든 필터 인스턴스 제거.
 
 ```
-Clear All Filters
+Cleanup All Filters
 └─ 출력
-   └─ Cleared Count (int32): 제거된 필터 수
+   └─ (없음)
 ```
 
 **사용 사례:**
@@ -433,6 +493,7 @@ Clear All Filters
 ---
 
 ### Get Filter Memory Usage (필터 메모리 사용량)
+**카테고리:** Advanced Filters > Performance
 
 모든 필터가 사용하는 총 메모리 보고.
 
@@ -446,31 +507,68 @@ Get Filter Memory Usage
 ---
 
 ### Start Filter Profiling (필터 프로파일링 시작)
+**카테고리:** Advanced Filters > Performance
 
 필터의 성능 프로파일링 시작.
 
 ```
 Start Filter Profiling
 ├─ 입력
-│  └─ Target (UBaseFilterObject*): 프로파일링할 필터
+│  └─ Profile ID (FString): 프로파일 식별자
 └─ 출력
-   └─ Success (bool): 시작 성공 시 True
+   └─ (없음)
 ```
 
 ---
 
 ### Stop Filter Profiling (필터 프로파일링 중지)
+**카테고리:** Advanced Filters > Performance
 
 프로파일링을 중지하고 성능 데이터 반환.
 
 ```
 Stop Filter Profiling
 ├─ 입력
-│  └─ Target (UBaseFilterObject*): 프로파일링 중인 필터
+│  └─ Profile ID (FString): 프로파일 식별자
 └─ 출력
    ├─ Average Time MS (float): 평균 업데이트 시간
    ├─ Peak Time MS (float): 최대 업데이트 시간
    └─ Update Count (int32): 총 업데이트 횟수
+```
+
+---
+
+## 🔍 디버그 및 추천 노드
+
+### Recommend Filter Type (필터 타입 추천)
+**카테고리:** Advanced Filters > Recommendation
+
+사용 사례에 따른 최적 필터 타입 추천.
+
+```
+Recommend Filter Type
+├─ 입력
+│  ├─ Needs Fast Response (bool): 빠른 반응 필요
+│  ├─ Needs Precise Prediction (bool): 정밀한 예측 필요
+│  ├─ Is VR/AR Input (bool): VR/AR 입력인지
+│  └─ Has Variable Frame Rate (bool): 가변 프레임레이트
+└─ 출력
+   └─ Filter Type (EFilterType): 추천 필터 타입
+```
+
+---
+
+### Get Filter Statistics (필터 통계)
+**카테고리:** Advanced Filters > Debug
+
+디버깅을 위한 상세한 필터 정보.
+
+```
+Get Filter Statistics
+├─ 입력
+│  └─ Target (UBaseFilterObject*): 필터 인스턴스
+└─ 출력
+   └─ Statistics (FString): 상세 통계 문자열
 ```
 
 ---
@@ -511,11 +609,48 @@ Stop Filter Profiling
 
 **추가 속성:**
 - `MinCutoff`: 최소 컷오프 주파수
-- `Beta`: 속도 계수
+- `Beta`: 속도 계수  
 - `DCutoff`: 미분 컷오프
 - `LastTime`: 마지막 업데이트 타임스탬프
 
 **블루프린트 접근:** 읽기 전용
+
+---
+
+### FCustomFilterPreset
+
+커스텀 필터 프리셋 구조체.
+
+**속성:**
+- `PresetName`: 프리셋 이름
+- `FilterType`: 필터 타입 (Kalman/OneEuro)
+- `ProcessNoise`: Kalman Q 파라미터
+- `MeasurementNoise`: Kalman R 파라미터
+- `MinCutoff`: OneEuro 최소 컷오프
+- `Beta`: OneEuro 속도 계수
+- `DCutoff`: OneEuro 미분 컷오프
+
+---
+
+### FFilterChainNode
+
+필터 체인 노드 구조체.
+
+**속성:**
+- `Filter`: 필터 인스턴스
+- `Weight`: 블렌딩 가중치 (0.0 - 1.0)
+
+---
+
+### FFilterPerformanceData
+
+성능 데이터 구조체.
+
+**속성:**
+- `AverageProcessingTime`: 평균 처리 시간
+- `MaxProcessingTime`: 최대 처리 시간
+- `UpdateCount`: 업데이트 횟수
+- `TotalProcessingTime`: 총 처리 시간
 
 ---
 
@@ -575,9 +710,33 @@ enum class EFilterPreset : uint8
 
 ---
 
+## 🚧 아직 구현되지 않은 기능
+
+### 예측 기능 (문서에는 있지만 코드에는 없음)
+
+다음 기능들은 향후 업데이트에서 추가될 예정입니다:
+
+```
+// 예정된 기능
+Predict Next State (칼만 필터)
+├─ 입력
+│  ├─ Target (UKalmanFilter*): 칼만 필터
+│  └─ Steps Ahead (int32): 예측할 스텝 수
+└─ 출력
+   └─ Predicted Value (float): 예측된 값
+
+Get Predicted Value (칼만 필터)
+├─ 입력
+│  └─ Target (UKalmanFilter*): 칼만 필터
+└─ 출력
+   └─ Predicted Value (float): 현재 예측값
+```
+
+---
+
 ## 📝 예제 코드
 
-### 기본 칼만 필터링
+### 기본 칼만 필터링 (Advanced Filters > Core 사용)
 ```blueprint
 // Begin Play
 Create Filter (Kalman) → Initialize (Medium) → 변수 설정 (MyFilter)
@@ -588,9 +747,24 @@ Create Filter (Kalman) → Initialize (Medium) → 변수 설정 (MyFilter)
 
 ### 커스텀 프리셋을 사용한 고급 원유로
 ```blueprint
-// Begin Play
-Create Custom Preset ("VR_Hand", 0.0, 0.0, 0.3, 0.0001, 1.0)
-Create Filter (OneEuro) → Apply Custom Preset ("VR_Hand") → 변수 설정
+// Begin Play - Kalman 커스텀 프리셋
+Create Custom Preset
+├─ Preset Name: "VR_Hand_Kalman"
+├─ Filter Type: Kalman
+├─ Process Noise/Min Cutoff: 0.05 (Q로 사용)
+├─ Measurement Noise/Beta: 0.02 (R로 사용)
+└─ DCutoff: 1.0 (무시됨)
+
+// Begin Play - OneEuro 커스텀 프리셋
+Create Custom Preset
+├─ Preset Name: "VR_Hand_OneEuro"
+├─ Filter Type: OneEuro
+├─ Process Noise/Min Cutoff: 0.3 (Min Cutoff로 사용)
+├─ Measurement Noise/Beta: 0.0001 (Beta로 사용)
+└─ DCutoff: 1.0 (사용됨)
+
+// 필터 생성 및 프리셋 적용
+Create Filter (OneEuro) → Apply Custom Preset ("VR_Hand_OneEuro") → 변수 설정
 
 // Event Tick
 변수 가져오기 → Update Filter Vector (컨트롤러 위치, Delta Time) → Set Hand Mesh Location

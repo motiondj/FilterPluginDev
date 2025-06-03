@@ -1,4 +1,4 @@
-# 블루프린트 예제
+# 블루프린트 예제 (개선판)
 
 *다른 언어로 읽기: [English](Examples.md), [한국어](Examples_KR.md)*
 
@@ -24,6 +24,20 @@
 
 ---
 
+## 🗂️ 노드 카테고리 빠른 참조
+
+이 문서의 예제에서 사용되는 노드들의 위치:
+
+| 사용 빈도 | 노드 | 카테고리 |
+|----------|------|---------|
+| ⭐⭐⭐ | Kalman/OneEuro Filter Value/Vector | Advanced Filters > One-Click |
+| ⭐⭐ | Create/Initialize/Update Filter | Advanced Filters > Core |
+| ⭐⭐ | Create/Apply Custom Preset | Advanced Filters > Custom Preset |
+| ⭐ | Create Filter Chain | Advanced Filters > Chain |
+| ⭐ | Get Filter Statistics | Advanced Filters > Debug |
+
+---
+
 ## 📋 목차
 
 1. [기본 예제](#기본-예제)
@@ -45,7 +59,7 @@
 ```blueprint
 Event Tick
 ├─ Get Player Location
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: 플레이어 위치
 │  ├─ Preset: Medium
 │  └─ Filter ID: "CameraFollow"
@@ -73,14 +87,14 @@ Event Tick
 Event Tick
 ├─ Get Mouse Delta
 ├─ Break Vector2D (X, Y)
-├─ [One Euro Filter Value] (X)
+├─ [One Euro Filter Value] (X)  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: Mouse X
-│  ├─ Delta Time: Event Delta
+│  ├─ Delta Time: Event Delta ← 필수!
 │  ├─ Preset: Low
 │  └─ Filter ID: "MouseX"
-├─ [One Euro Filter Value] (Y)
+├─ [One Euro Filter Value] (Y)  ← 같은 카테고리
 │  ├─ Raw Value: Mouse Y
-│  ├─ Delta Time: Event Delta
+│  ├─ Delta Time: Event Delta ← 필수!
 │  ├─ Preset: Low
 │  └─ Filter ID: "MouseY"
 └─ Add Controller Input (Yaw, Pitch)
@@ -90,6 +104,7 @@ Event Tick
 - 최소 지연을 위한 원유로 필터
 - 반응성 유지를 위한 Low 프리셋
 - X, Y 축을 위한 별도 필터
+- ⚠️ **원유로는 Delta Time 필수!**
 
 ---
 
@@ -102,7 +117,7 @@ Event Tick
 **블루프린트 설정:**
 ```blueprint
 On Health Changed 이벤트
-├─ [Kalman Filter Value]
+├─ [Kalman Filter Value]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: 새 체력
 │  ├─ Preset: High
 │  └─ Filter ID: "HealthBar"
@@ -134,22 +149,27 @@ AI 움직임을 더 자연스럽고 덜 로봇적으로 만들기.
 // AI 컨트롤러에서
 Event Receive Move Completed
 ├─ Get Next Path Point
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: 경로 포인트
 │  ├─ Preset: Medium
 │  └─ Filter ID: "AI_" + 캐릭터 이름
 └─ Move To Location (필터링됨)
 ```
 
-**고급 버전:**
+**고급 버전 (3-노드 시스템 사용):**
 ```blueprint
+// 카테고리: Advanced Filters > Core
+Begin Play:
+├─ [Create Filter] (Type: Kalman)
+├─ [Initialize Filter] (Preset: Low)
+└─ AIPathFilter로 저장
+
 // 전체 경로 스무딩
 Get Path Points Array
 ├─ For Each Loop
-│  ├─ [Kalman Filter Vector]
-│  │  ├─ Raw Value: 경로 포인트
-│  │  ├─ Preset: Low
-│  │  └─ Filter ID: "PathSmooth"
+│  ├─ [Update Filter Vector]
+│  │  ├─ Target: AIPathFilter
+│  │  └─ Raw Value: 경로 포인트
 │  └─ 스무딩된 경로에 추가
 └─ 스무딩된 경로 따라가기
 ```
@@ -167,9 +187,9 @@ Get Path Points Array
 // UI 위젯에서
 Event Tick
 ├─ Get Mouse Position
-├─ [One Euro Filter Vector]
+├─ [One Euro Filter Vector]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: 마우스 위치
-│  ├─ Delta Time: UI Delta Time
+│  ├─ Delta Time: UI Delta Time ← 필수!
 │  ├─ Preset: Medium
 │  └─ Filter ID: "MenuCursor"
 └─ Set Cursor Widget Position
@@ -196,7 +216,7 @@ Get Mouse Position
 // 데미지 숫자 위젯에서
 Event Construct
 ├─ Random Offset (-50, 50)
-├─ [Kalman Filter Value]
+├─ [Kalman Filter Value]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: 랜덤 X 오프셋
 │  ├─ Preset: High
 │  └─ Filter ID: "DamageFloat"
@@ -219,37 +239,43 @@ Event Tick
 
 안정적인 손 존재감을 위한 컨트롤러 떨림 감소.
 
-**블루프린트 설정:**
+**커스텀 프리셋 생성 (중요!):**
+```blueprint
+// 카테고리: Advanced Filters > Custom Preset
+Begin Play:
+[Create Custom Preset]
+├─ Preset Name: "VR_Hands"
+├─ Filter Type: OneEuro ← 선택 중요!
+├─ Process Noise/Min Cutoff: 0.4  ← OneEuro에서는 Min Cutoff
+├─ Measurement Noise/Beta: 0.00001  ← OneEuro에서는 Beta
+└─ DCutoff: 1.0
+    ↓
+VRHandPreset으로 저장
+```
+
+**필터 적용:**
 ```blueprint
 // VR 폰에서
 Event Tick
 ├─ Get Controller Location (오른쪽)
-├─ [One Euro Filter Vector]
+├─ [One Euro Filter Vector]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: 컨트롤러 위치
-│  ├─ Delta Time: Delta Seconds
+│  ├─ Delta Time: Delta Seconds ← 필수!
 │  ├─ Preset: Low
 │  └─ Filter ID: "RightHand"
 ├─ Get Controller Rotation
 ├─ [One Euro Filter Vector] (벡터로 변환)
 │  ├─ Raw Value: 벡터로 변환된 회전
-│  ├─ Delta Time: Delta Seconds
+│  ├─ Delta Time: Delta Seconds ← 필수!
 │  ├─ Preset: Medium
 │  └─ Filter ID: "RightHandRot"
 └─ Set Hand Mesh Transform
 ```
 
-**VR용 커스텀 프리셋:**
-```blueprint
-Begin Play
-├─ [Create Custom Preset]
-│  ├─ Name: "VR_Controllers"
-│  ├─ Process Noise: 0.0
-│  ├─ Measurement Noise: 0.0
-│  ├─ Min Cutoff: 0.3
-│  ├─ Beta: 0.00001
-│  └─ DCutoff: 1.0
-└─ 양손에 적용
-```
+⚠️ **VR 주의사항:**
+- 원유로 필터가 VR에 더 적합 (낮은 지연)
+- Delta Time 연결 필수
+- 너무 높은 필터링은 멀미 유발 가능
 
 ---
 
@@ -262,7 +288,7 @@ Begin Play
 // AR 배치 매니저
 On Surface Detected
 ├─ Get Surface Point
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: Hit 위치
 │  ├─ Preset: High
 │  └─ Filter ID: "ARSurface"
@@ -282,34 +308,28 @@ On Surface Detected
 
 정교한 효과를 위한 다중 필터 조합.
 
-**블루프린트 설정:**
+**체인 생성:**
 ```blueprint
-// 초부드러운 카메라를 위한 이중 필터링
-Event Tick
-├─ Get Target Location
-├─ [One Euro Filter Vector] (Low 프리셋)
-│  └─ Filter ID: "CameraStage1"
-├─ [Kalman Filter Vector] (Medium 프리셋)
-│  └─ Filter ID: "CameraStage2"
-└─ Set Camera Location
+// 카테고리: Advanced Filters > Chain
+Begin Play:
+[Create Filter Chain]
+├─ Filter Types: [Kalman, OneEuro]
+├─ Presets: [High, Low]
+└─ FilterChain으로 저장
 ```
 
-**필터 체인 노드:**
+**체인 사용:**
 ```blueprint
-// 체인 시스템 사용
-Begin Play
-├─ [Create Filter Chain]
-│  ├─ Types: [OneEuro, Kalman]
-│  └─ Presets: [Low, High]
-└─ FilterChain으로 저장
-
 Event Tick
+├─ Get Target Location
 ├─ [Process Through Chain]
-│  ├─ Chain: FilterChain
-│  ├─ Value: 목표 위치
+│  ├─ Filter Chain: FilterChain
+│  ├─ Raw Value: 목표 위치 (Float만 지원)
 │  └─ Delta Time: Delta Seconds
 └─ 결과 사용
 ```
+
+⚠️ **현재 제한사항:** 체인은 Float 값만 지원합니다. Vector는 각 축별로 처리하세요.
 
 ---
 
@@ -317,48 +337,46 @@ Event Tick
 
 게임플레이 상태에 따른 필터 강도 변경.
 
-**블루프린트 설정:**
+**동적 프리셋 전환:**
 ```blueprint
-// 동적 프리셋 전환
 Event Tick
 ├─ Branch (조준 중?)
 │  ├─ True: 프리셋 = Low 설정
 │  └─ False: 프리셋 = High 설정
-├─ [One Euro Filter Value]
+├─ [One Euro Filter Value]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Raw Value: 입력
+│  ├─ Delta Time: Delta Seconds
 │  ├─ Preset: 동적 프리셋
 │  └─ Filter ID: "AdaptiveAim"
 └─ 카메라에 적용
 ```
 
-**속도 기반 적응:**
+**고급: 3-노드로 런타임 파라미터 변경:**
 ```blueprint
-// 빠른 움직임 = 적은 필터링
+// 카테고리: Advanced Filters > Core + Advanced
 Get Velocity → Length
-├─ Map Range (0-600 → 0-1)
-├─ [Create Custom Preset]
+├─ Map Range (0-600 → 0.0-1.0)
+├─ [Set Beta]  ← 카테고리: Advanced Filters > Advanced
+│  ├─ Target: 필터 인스턴스
 │  └─ Beta: 매핑된 속도
 └─ 움직임 필터에 적용
 ```
 
 ---
 
-### 예제 11: 예측 쇼케이스
+### 예제 11: 디버그 시각화
 
-미리보기를 위한 칼만 필터의 예측 사용.
+필터 동작을 실시간으로 확인.
 
-**블루프린트 설정:**
+**통계 표시:**
 ```blueprint
-// 예측 타겟팅
-Event Tick
-├─ Get Target Velocity
-├─ Get Target Position
-├─ [Kalman Filter Vector] → 현재 필터링됨
-├─ [Get Predicted Value] (커스텀 노드)
-│  ├─ Filter: 칼만 인스턴스
-│  └─ Steps Ahead: 10
-├─ Draw Debug Sphere (현재 - 파란색)
-└─ Draw Debug Sphere (예측 - 빨간색)
+// 카테고리: Advanced Filters > Debug
+Event Tick (매 30프레임)
+├─ [Get Filter Statistics]
+│  └─ Target: 디버그할 필터
+├─ Print String
+│  └─ Duration: 0.5초
+└─ Draw Debug 정보
 ```
 
 ---
@@ -377,7 +395,7 @@ Get Distance to Camera
 │  ├─ < 10m: High (부드러운 애니메이션)
 │  ├─ < 50m: Medium
 │  └─ > 50m: Low (또는 건너뛰기)
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Preset: 선택됨
 │  └─ Filter ID: "Character_" + Index
 └─ 스켈레탈 메시에 적용
@@ -385,28 +403,24 @@ Get Distance to Camera
 
 ---
 
-### 예제 13: 배치 처리
+### 예제 13: 성능 프로파일링
 
-여러 값을 효율적으로 필터링.
+필터 성능 측정하기.
 
-**블루프린트 설정:**
+**프로파일링 설정:**
 ```blueprint
-// 위치 배열 처리
-Get All Particle Positions
-├─ For Each Loop
-│  ├─ [Kalman Filter Vector]
-│  │  └─ Filter ID: "Particle_" + Index
-│  └─ 필터링된 배열에 추가
-└─ 모든 파티클 업데이트
-```
+// 카테고리: Advanced Filters > Performance
+Begin Play:
+[Start Filter Profiling]
+└─ Profile ID: "MainCharacterFilter"
 
-**최적화된 버전:**
-```blueprint
-// 보이는 파티클만 처리
-Get Visible Particles
-├─ 거리별 필터
-├─ 배치 업데이트 (커스텀 C++)
-└─ 결과 적용
+End Play:
+[Stop Filter Profiling]
+├─ Profile ID: "MainCharacterFilter"
+└─ 결과 로그:
+    ├─ Average Time MS
+    ├─ Peak Time MS
+    └─ Update Count
 ```
 
 ---
@@ -438,15 +452,18 @@ Event Tick
 ```blueprint
 // 입력 스무딩
 Input Axis MoveForward
-├─ [One Euro Filter Value]
+├─ [One Euro Filter Value]  ← 카테고리: Advanced Filters > One-Click
+│  ├─ Raw Value: Axis Value
+│  ├─ Delta Time: World Delta ← 필수!
 │  ├─ Preset: Low
 │  └─ Filter ID: "MoveForward"
 └─ Add Movement Input
 
 Input Axis Turn
 ├─ [One Euro Filter Value]
+│  ├─ Raw Value: Axis Value
+│  ├─ Delta Time: World Delta ← 필수!
 │  ├─ Preset: Low
-│  ├─ Delta Time: Delta
 │  └─ Filter ID: "MouseTurn"
 └─ Add Controller Yaw
 ```
@@ -456,37 +473,34 @@ Input Axis Turn
 // 카메라 스무딩
 Event Tick
 ├─ Get Socket Location "Head"
-├─ [Kalman Filter Vector]
+├─ [Kalman Filter Vector]  ← 카테고리: Advanced Filters > One-Click
 │  ├─ Preset: Medium
 │  └─ Filter ID: "CameraPos"
 ├─ Get Control Rotation
-├─ [One Euro Filter] (Rotator를 Vector로)
+├─ [One Euro Filter Vector] (Rotator를 Vector로)
+│  ├─ Delta Time: World Delta ← 필수!
 │  ├─ Preset: Low
 │  └─ Filter ID: "CameraRot"
 └─ Set Camera Transform
 ```
 
-**무기 흔들림:**
-```blueprint
-// 무기 지연
-Event Tick
-├─ Get Look Velocity
-├─ [Kalman Filter Vector]
-│  ├─ Preset: High
-│  └─ Filter ID: "WeaponSway"
-├─ 흔들림 오프셋으로 매핑
-└─ 무기 위치에 추가
-```
+---
+
+## 🚧 알려진 제한사항
+
+1. **필터 체인은 Float만 지원** - Vector는 각 축별로 처리
+2. **예측 기능 미구현** - Predict Next State는 아직 사용 불가
+3. **원유로는 Delta Time 필수** - 없으면 이상하게 작동
 
 ---
 
 ## 🎯 예제 팁
 
-1. **간단하게 시작** - 체이닝 전에 하나의 필터로 테스트
-2. **시각화** - 디버그 드로우를 사용하여 필터 효과 확인
-3. **프로파일** - 프로파일링 노드로 성능 모니터링
-4. **실험** - 사용 사례에 맞는 다른 프리셋 시도
-5. **프리셋 저장** - 재사용을 위한 커스텀 프리셋 생성
+1. **간단하게 시작** - 원클릭 매크로로 테스트 후 필요시 3-노드로
+2. **시각화** - Get Filter Statistics로 동작 확인
+3. **프로파일** - 성능이 중요하면 Start/Stop Profiling 사용
+4. **실험** - 다른 프리셋과 필터 타입 시도
+5. **카테고리 기억** - 노드를 못 찾겠으면 카테고리 확인
 
 ---
 

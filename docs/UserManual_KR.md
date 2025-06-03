@@ -1,4 +1,4 @@
-# 사용자 매뉴얼
+# 사용자 매뉴얼 (개선판)
 
 *다른 언어로 읽기: [English](UserManual.md), [한국어](UserManual_KR.md)*
 
@@ -21,6 +21,52 @@
   - [API 레퍼런스](APIReference_KR.md)
   - [성능 가이드](Performance_KR.md)
   - [문제 해결](Troubleshooting_KR.md)
+
+---
+
+## 🗂️ 블루프린트 노드 찾기 가이드
+
+### 노드 카테고리 맵
+
+블루프린트 에디터에서 우클릭 시 다음 카테고리에서 노드를 찾을 수 있습니다:
+
+```
+Advanced Filters
+├── Core (핵심 3-노드 시스템)
+│   ├── Create Filter
+│   ├── Initialize Filter
+│   └── Update Filter (Float/Vector)
+├── One-Click (원클릭 매크로)
+│   ├── Kalman Filter Value
+│   ├── Kalman Filter Vector
+│   ├── One Euro Filter Value
+│   └── One Euro Filter Vector
+├── Utility (유틸리티)
+│   ├── Reset Filter
+│   ├── Get Current Value
+│   ├── Is Filter Initialized
+│   └── Cleanup All Filters
+├── Advanced (고급 기능)
+│   ├── Set Process Noise
+│   ├── Set Measurement Noise
+│   ├── Set Min Cutoff
+│   └── Set Beta
+├── Custom Preset (커스텀 프리셋)
+│   ├── Create Custom Preset
+│   └── Apply Custom Preset
+├── Chain (필터 체인)
+│   ├── Create Filter Chain
+│   └── Process Through Chain
+├── Performance (성능)
+│   ├── Start Profiling
+│   └── Stop Profiling
+├── Debug (디버그)
+│   └── Get Filter Statistics
+└── Recommendation (추천)
+    └── Recommend Filter Type
+```
+
+**💡 팁**: 검색창에 "Advanced Filters"를 입력하면 모든 관련 노드가 표시됩니다!
 
 ---
 
@@ -96,6 +142,8 @@
 
 #### Float 필터링
 ```blueprint
+카테고리: Advanced Filters > One-Click
+
 [노이즈 값] → [Kalman Filter Value] → [부드러운 결과]
                │
                ├─ Preset: Low/Medium/High
@@ -104,6 +152,8 @@
 
 #### Vector 필터링
 ```blueprint
+카테고리: Advanced Filters > One-Click
+
 [노이즈 위치] → [One Euro Filter Vector] → [부드러운 위치]
                  │
                  ├─ Preset: Medium
@@ -117,6 +167,8 @@
 
 #### 설정 단계
 ```blueprint
+카테고리: Advanced Filters > Core
+
 Begin Play:
 [Create Filter] → [Initialize Filter] → [변수에 저장]
        │                    │
@@ -151,24 +203,31 @@ Event Tick:
 특정 요구에 맞는 필터 구성을 만들 수 있습니다.
 
 ```blueprint
+카테고리: Advanced Filters > Custom Preset
+
 [Create Custom Preset]
 ├─ Name: "MyVRController"
-├─ Kalman Process Noise: 0.1
-├─ Kalman Measurement Noise: 0.05
-├─ OneEuro Min Cutoff: 0.5
-├─ OneEuro Beta: 0.0001
-└─ OneEuro DCutoff: 1.0
-    ↓
-[Apply Custom Preset]
-├─ Filter: 대상 필터
-└─ Preset Name: "MyVRController"
+├─ Filter Type: OneEuro 선택 시
+│  ├─ Process Noise/Min Cutoff: 0.5 (Min Cutoff로 사용)
+│  ├─ Measurement Noise/Beta: 0.0001 (Beta로 사용)
+│  └─ DCutoff: 1.0
+└─ Filter Type: Kalman 선택 시
+   ├─ Process Noise/Min Cutoff: 0.05 (Process Noise로 사용)
+   ├─ Measurement Noise/Beta: 0.1 (Measurement Noise로 사용)
+   └─ DCutoff: (무시됨)
 ```
+
+⚠️ **중요**: 파라미터 이름이 필터 타입에 따라 다른 의미를 가집니다!
+- **Kalman 필터**: 첫 번째 = Process Noise (Q), 두 번째 = Measurement Noise (R)
+- **OneEuro 필터**: 첫 번째 = Min Cutoff, 두 번째 = Beta
 
 ### 필터 체이닝
 
 정교한 처리를 위해 여러 필터를 결합합니다.
 
 ```blueprint
+카테고리: Advanced Filters > Chain
+
 [Create Filter Chain]
 ├─ Filter 1: Kalman (High)    // 큰 노이즈 제거
 ├─ Filter 2: OneEuro (Low)    // 반응성 유지
@@ -184,6 +243,8 @@ Event Tick:
 여러 필터의 출력을 동적으로 혼합합니다.
 
 ```blueprint
+카테고리: Advanced Filters > Chain
+
 [Blend Filter Outputs]
 ├─ Filter A: 칼만 결과
 ├─ Filter B: 원유로 결과
@@ -196,6 +257,8 @@ Event Tick:
 실시간으로 필터 성능을 모니터링합니다.
 
 ```blueprint
+카테고리: Advanced Filters > Performance
+
 [Start Filter Profiling]
     ↓
 [... 필터링 로직 ...]
@@ -214,10 +277,12 @@ Event Tick:
 시스템이 자동으로 필터 파라미터를 조정하도록 합니다.
 
 ```blueprint
-[Enable Auto Tune]
+카테고리: Advanced Filters > Advanced
+
+[Auto Tune Filter]
 ├─ Filter: 대상 필터
-├─ Sample Count: 100
-└─ Target Smoothness: 0.8
+├─ Recent Values: 최근 100개 값 배열
+└─ Success: 자동 조정 성공 여부
     ↓
 [신호 특성에 따라 필터가 자동 조정됨]
 ```
@@ -227,13 +292,16 @@ Event Tick:
 디버깅을 위한 상세한 필터 정보에 접근합니다.
 
 ```blueprint
+카테고리: Advanced Filters > Debug
+
 [Get Filter Statistics]
-├─ Current Value: 45.2
-├─ Predicted Value: 45.8
-├─ Kalman Gain: 0.82
-├─ Error Covariance: 0.03
-├─ Update Count: 523
-└─ Last Update Time: 0.016ms
+├─ Target: 필터 인스턴스
+└─ Output: 통계 문자열
+    - 필터 타입
+    - 현재 값
+    - 칼만 게인 (칼만만)
+    - 현재 컷오프 (원유로만)
+    - 업데이트 횟수
 ```
 
 ---
@@ -288,8 +356,8 @@ Filter ID: "Health_" + FrameCount  // 매 프레임 새 필터 생성!
 
 필터는 자동으로 관리되지만 다음 지침을 따르세요:
 - 가능하면 필터 ID 재사용
-- `Clear All Filters` 노드로 미사용 필터 정리
-- `Get Filter Memory Usage`로 메모리 모니터링
+- `Cleanup All Filters` 노드로 미사용 필터 정리 (Advanced Filters > Utility)
+- `Get Filter Memory Usage`로 메모리 모니터링 (Advanced Filters > Performance)
 
 ---
 
@@ -309,9 +377,8 @@ Filter ID: "Health_" + FrameCount  // 매 프레임 새 필터 생성!
 1. **배치 처리**
    ```blueprint
    // 같은 필터로 여러 값 처리
-   [Update Filter Batch]
-   ├─ Values: Float 배열
-   └─ Output: 필터링된 값 배열
+   [For Each Loop]
+   └─ [Update Filter] (같은 필터 인스턴스 사용)
    ```
 
 2. **조건부 업데이트**
@@ -345,11 +412,11 @@ Filter ID: "Health_" + FrameCount  // 매 프레임 새 필터 생성!
 필터 동작을 보기 위해 시각적 디버깅을 활성화하세요:
 
 ```blueprint
-[Set Filter Debug Mode]
+카테고리: Advanced Filters > Debug
+
+[Get Filter Statistics]
 ├─ Filter: 대상 필터
-├─ Show Graph: True
-├─ Show Statistics: True
-└─ Graph Size: 200x100
+└─ 출력을 Print String으로 표시
 ```
 
 ### 일반적인 문제
@@ -363,6 +430,18 @@ Filter ID: "Health_" + FrameCount  // 매 프레임 새 필터 생성!
 
 ---
 
+## 🚧 아직 구현되지 않은 기능
+
+다음 기능들은 문서에는 설명되어 있지만 현재 버전에서는 구현되지 않았습니다:
+
+### 예측 기능 (향후 업데이트 예정)
+- **Predict Next State**: 칼만 필터의 미래 상태 예측
+- **Get Predicted Value**: 현재 예측값 가져오기
+
+이 기능들은 다음 버전에서 추가될 예정입니다.
+
+---
+
 ## 📝 요약
 
 고급 필터 플러그인은 최소한의 노력으로 전문적이고 세련된 경험을 만들 수 있도록 지원합니다. VR 애플리케이션을 구축하든, 카메라 움직임을 안정화하든, 센서 데이터를 처리하든, 이 필터들이 필요한 도구를 제공합니다.
@@ -373,6 +452,7 @@ Filter ID: "Health_" + FrameCount  // 매 프레임 새 필터 생성!
 - 📊 프리셋으로 시작하고 필요에 따라 커스터마이즈
 - 🔧 간단함을 위해 원클릭, 제어를 위해 3-노드 사용
 - 📈 내장 프로파일링으로 성능 모니터링
+- 🗂️ 카테고리를 이해하면 노드 찾기가 쉬워집니다!
 
 ---
 
